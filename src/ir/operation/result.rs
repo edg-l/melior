@@ -1,9 +1,9 @@
 use super::Value;
+use crate::mlir_sys::{mlirOpResultGetOwner, mlirOpResultGetResultNumber, MlirValue};
 use crate::{
     ir::{OperationRef, ValueLike},
     Error,
 };
-use mlir_sys::{mlirOpResultGetOwner, mlirOpResultGetResultNumber, MlirValue};
 use std::fmt::{self, Display, Formatter};
 
 /// An operation result.

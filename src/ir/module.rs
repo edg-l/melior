@@ -1,11 +1,11 @@
 use super::{BlockRef, Location, Operation, OperationRef};
+use crate::mlir_sys::{
+    mlirModuleCreateEmpty, mlirModuleCreateParse, mlirModuleDestroy, mlirModuleFromOperation,
+    mlirModuleGetBody, mlirModuleGetContext, mlirModuleGetOperation, MlirModule,
+};
 use crate::{
     context::{Context, ContextRef},
     string_ref::StringRef,
-};
-use mlir_sys::{
-    mlirModuleCreateEmpty, mlirModuleCreateParse, mlirModuleDestroy, mlirModuleFromOperation,
-    mlirModuleGetBody, mlirModuleGetContext, mlirModuleGetOperation, MlirModule,
 };
 use std::marker::PhantomData;
 

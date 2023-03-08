@@ -1,6 +1,5 @@
 use super::Registry;
-use crate::{context::Context, dialect::Dialect, string_ref::StringRef};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirDialectHandleGetNamespace, mlirDialectHandleInsertDialect, mlirDialectHandleLoadDialect,
     mlirDialectHandleRegisterDialect, mlirGetDialectHandle__async__, mlirGetDialectHandle__cf__,
     mlirGetDialectHandle__func__, mlirGetDialectHandle__gpu__, mlirGetDialectHandle__linalg__,
@@ -8,6 +7,7 @@ use mlir_sys::{
     mlirGetDialectHandle__scf__, mlirGetDialectHandle__shape__,
     mlirGetDialectHandle__sparse_tensor__, mlirGetDialectHandle__tensor__, MlirDialectHandle,
 };
+use crate::{context::Context, dialect::Dialect, string_ref::StringRef};
 
 /// A dialect handle.
 #[derive(Clone, Copy, Debug)]

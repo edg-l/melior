@@ -1,5 +1,5 @@
 use super::Id;
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirTypeIDAllocatorAllocateTypeID, mlirTypeIDAllocatorCreate, mlirTypeIDAllocatorDestroy,
     MlirTypeIDAllocator,
 };

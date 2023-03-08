@@ -1,11 +1,11 @@
 use super::TypeLike;
+use crate::mlir_sys::{
+    mlirMemRefTypeGet, mlirMemRefTypeGetAffineMap, mlirMemRefTypeGetChecked,
+    mlirMemRefTypeGetLayout, mlirMemRefTypeGetMemorySpace, MlirType,
+};
 use crate::{
     ir::{affine_map::AffineMap, Attribute, Location, Type},
     Error,
-};
-use mlir_sys::{
-    mlirMemRefTypeGet, mlirMemRefTypeGetAffineMap, mlirMemRefTypeGetChecked,
-    mlirMemRefTypeGetLayout, mlirMemRefTypeGetMemorySpace, MlirType,
 };
 use std::fmt::{self, Display, Formatter};
 

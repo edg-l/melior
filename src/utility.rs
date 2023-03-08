@@ -1,11 +1,11 @@
 //! Utility functions.
 
-use crate::{
-    context::Context, dialect, logical_result::LogicalResult, pass, string_ref::StringRef, Error,
-};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirParsePassPipeline, mlirRegisterAllDialects, mlirRegisterAllLLVMTranslations,
     mlirRegisterAllPasses, MlirStringRef,
+};
+use crate::{
+    context::Context, dialect, logical_result::LogicalResult, pass, string_ref::StringRef, Error,
 };
 use std::{
     ffi::c_void,
@@ -33,14 +33,20 @@ pub fn register_all_passes() {
 
 /// Parses a pass pipeline.
 pub fn parse_pass_pipeline(manager: pass::OperationManager, source: &str) -> Result<(), Error> {
+    let mut error_msg = String::new();
     let result = LogicalResult::from_raw(unsafe {
-        mlirParsePassPipeline(manager.to_raw(), StringRef::from(source).to_raw())
+        mlirParsePassPipeline(
+            manager.to_raw(),
+            StringRef::from(source).to_raw(),
+            Some(error_callback),
+            &mut error_msg as *mut _ as *mut c_void,
+        )
     });
 
     if result.is_success() {
         Ok(())
     } else {
-        Err(Error::ParsePassPipeline)
+        Err(Error::ParsePassPipeline(error_msg))
     }
 }
 
@@ -65,6 +71,14 @@ pub(crate) unsafe extern "C" fn print_callback(string: MlirStringRef, data: *mut
                 .map_err(|_| fmt::Error)?
         )
     })();
+}
+
+pub(crate) unsafe extern "C" fn error_callback(string: MlirStringRef, data: *mut c_void) {
+    let data = &mut *(data as *mut String);
+
+    let err = StringRef::from_raw(string);
+    let error = err.as_str().unwrap();
+    data.push_str(error);
 }
 
 #[cfg(test)]

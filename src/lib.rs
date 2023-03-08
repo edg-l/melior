@@ -101,6 +101,7 @@ mod error;
 mod execution_engine;
 pub mod ir;
 mod logical_result;
+mod mlir_sys;
 pub mod pass;
 mod string_ref;
 pub mod utility;

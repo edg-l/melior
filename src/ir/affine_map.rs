@@ -1,10 +1,10 @@
+use crate::mlir_sys::{
+    mlirAffineMapDump, mlirAffineMapEqual, mlirAffineMapGetContext, mlirAffineMapPrint,
+    MlirAffineMap,
+};
 use crate::{
     context::{Context, ContextRef},
     utility::print_callback,
-};
-use mlir_sys::{
-    mlirAffineMapDump, mlirAffineMapEqual, mlirAffineMapGetContext, mlirAffineMapPrint,
-    MlirAffineMap,
 };
 use std::{
     ffi::c_void,

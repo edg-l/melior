@@ -5,11 +5,13 @@ pub mod llvm;
 mod registry;
 
 pub use self::{handle::Handle, registry::Registry};
+use crate::mlir_sys::{
+    mlirDialectEqual, mlirDialectGetContext, mlirDialectGetNamespace, MlirDialect,
+};
 use crate::{
     context::{Context, ContextRef},
     string_ref::StringRef,
 };
-use mlir_sys::{mlirDialectEqual, mlirDialectGetContext, mlirDialectGetNamespace, MlirDialect};
 use std::marker::PhantomData;
 
 /// A dialect.

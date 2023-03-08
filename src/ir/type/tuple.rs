@@ -1,6 +1,6 @@
 use super::TypeLike;
+use crate::mlir_sys::{mlirTupleTypeGet, mlirTupleTypeGetNumTypes, mlirTupleTypeGetType, MlirType};
 use crate::{ir::Type, utility::into_raw_array, Context, Error};
-use mlir_sys::{mlirTupleTypeGet, mlirTupleTypeGetNumTypes, mlirTupleTypeGetType, MlirType};
 use std::fmt::{self, Display, Formatter};
 
 /// A tuple type.

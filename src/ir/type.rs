@@ -9,13 +9,13 @@ mod type_like;
 use self::mem_ref::MemRef;
 pub use self::{function::Function, id::Id, tuple::Tuple, type_like::TypeLike};
 use super::Location;
-use crate::{context::Context, string_ref::StringRef, utility::print_callback};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirBF16TypeGet, mlirF16TypeGet, mlirF32TypeGet, mlirF64TypeGet, mlirIndexTypeGet,
     mlirIntegerTypeGet, mlirIntegerTypeSignedGet, mlirIntegerTypeUnsignedGet, mlirNoneTypeGet,
     mlirTypeEqual, mlirTypeParseGet, mlirTypePrint, mlirVectorTypeGet, mlirVectorTypeGetChecked,
     MlirType,
 };
+use crate::{context::Context, string_ref::StringRef, utility::print_callback};
 use std::{
     ffi::c_void,
     fmt::{self, Debug, Display, Formatter},
@@ -32,6 +32,10 @@ pub struct Type<'c> {
 
 impl<'c> Type<'c> {
     /// Parses a type.
+    ///
+    /// Be mindful of spaces.
+    ///
+    /// E.g `!llvm.array<4 x i32>` is valid. But `!llvm.array<4xi32>` is not.
     pub fn parse(context: &'c Context, source: &str) -> Option<Self> {
         unsafe {
             Self::from_option_raw(mlirTypeParseGet(

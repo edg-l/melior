@@ -1,13 +1,13 @@
 //! LLVM types
 
+use crate::mlir_sys::{
+    mlirLLVMArrayTypeGet, mlirLLVMFunctionTypeGet, mlirLLVMPointerTypeGet,
+    mlirLLVMStructTypeLiteralGet, mlirLLVMVoidTypeGet,
+};
 use crate::{
     context::Context,
     ir::{Type, TypeLike},
     utility::into_raw_array,
-};
-use mlir_sys::{
-    mlirLLVMArrayTypeGet, mlirLLVMFunctionTypeGet, mlirLLVMPointerTypeGet,
-    mlirLLVMStructTypeLiteralGet, mlirLLVMVoidTypeGet,
 };
 
 // TODO Check if the `llvm` dialect is loaded on use of those functions.
@@ -108,7 +108,7 @@ mod tests {
 
         assert_eq!(
             super::array(i32, 4),
-            Type::parse(&context, "!llvm.array<4xi32>").unwrap()
+            Type::parse(&context, "!llvm.array<4 x i32>").unwrap()
         );
     }
 

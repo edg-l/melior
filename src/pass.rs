@@ -6,7 +6,7 @@ mod operation_manager;
 pub mod transform;
 
 pub use self::{manager::Manager, operation_manager::OperationManager};
-use mlir_sys::MlirPass;
+use crate::mlir_sys::MlirPass;
 
 /// A pass.
 pub struct Pass {

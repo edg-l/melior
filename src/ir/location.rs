@@ -1,12 +1,12 @@
+use crate::mlir_sys::{
+    mlirLocationEqual, mlirLocationFileLineColGet, mlirLocationFusedGet, mlirLocationGetContext,
+    mlirLocationNameGet, mlirLocationPrint, mlirLocationUnknownGet, MlirLocation,
+};
 use crate::{
     context::{Context, ContextRef},
     ir::Attribute,
     string_ref::StringRef,
     utility::{into_raw_array, print_callback},
-};
-use mlir_sys::{
-    mlirLocationEqual, mlirLocationFileLineColGet, mlirLocationFusedGet, mlirLocationGetContext,
-    mlirLocationNameGet, mlirLocationPrint, mlirLocationUnknownGet, MlirLocation,
 };
 use std::{
     ffi::c_void,

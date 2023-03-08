@@ -1,10 +1,10 @@
+use crate::mlir_sys::{
+    mlirIdentifierEqual, mlirIdentifierGet, mlirIdentifierGetContext, mlirIdentifierStr,
+    MlirIdentifier,
+};
 use crate::{
     context::{Context, ContextRef},
     string_ref::StringRef,
-};
-use mlir_sys::{
-    mlirIdentifierEqual, mlirIdentifierGet, mlirIdentifierGetContext, mlirIdentifierStr,
-    MlirIdentifier,
 };
 use std::marker::PhantomData;
 

@@ -5,19 +5,19 @@ mod result;
 
 pub use self::{builder::Builder, result::ResultValue};
 use super::{BlockRef, Identifier, RegionRef, Value};
-use crate::{
-    context::{Context, ContextRef},
-    utility::print_callback,
-    Error,
-};
-use core::fmt;
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirOperationClone, mlirOperationDestroy, mlirOperationDump, mlirOperationEqual,
     mlirOperationGetBlock, mlirOperationGetContext, mlirOperationGetName,
     mlirOperationGetNextInBlock, mlirOperationGetNumRegions, mlirOperationGetNumResults,
     mlirOperationGetRegion, mlirOperationGetResult, mlirOperationPrint, mlirOperationVerify,
     MlirOperation,
 };
+use crate::{
+    context::{Context, ContextRef},
+    utility::print_callback,
+    Error,
+};
+use core::fmt;
 use std::{
     ffi::c_void,
     fmt::{Debug, Display, Formatter},

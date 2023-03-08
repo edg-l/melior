@@ -1,5 +1,5 @@
 use super::{Block, BlockRef};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirRegionAppendOwnedBlock, mlirRegionCreate, mlirRegionDestroy, mlirRegionEqual,
     mlirRegionGetFirstBlock, mlirRegionInsertOwnedBlockAfter, mlirRegionInsertOwnedBlockBefore,
     MlirRegion,
@@ -70,7 +70,7 @@ impl Region {
         }
     }
 
-    pub(crate) unsafe fn into_raw(self) -> mlir_sys::MlirRegion {
+    pub(crate) unsafe fn into_raw(self) -> crate::mlir_sys::MlirRegion {
         let region = self.raw;
 
         forget(self);

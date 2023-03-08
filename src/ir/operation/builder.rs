@@ -1,14 +1,14 @@
+use crate::mlir_sys::{
+    mlirNamedAttributeGet, mlirOperationCreate, mlirOperationStateAddAttributes,
+    mlirOperationStateAddOperands, mlirOperationStateAddOwnedRegions, mlirOperationStateAddResults,
+    mlirOperationStateAddSuccessors, mlirOperationStateEnableResultTypeInference,
+    mlirOperationStateGet, MlirOperationState,
+};
 use crate::{
     context::Context,
     ir::{Attribute, Block, Identifier, Location, Region, Type, TypeLike, Value, ValueLike},
     string_ref::StringRef,
     utility::into_raw_array,
-};
-use mlir_sys::{
-    mlirNamedAttributeGet, mlirOperationCreate, mlirOperationStateAddAttributes,
-    mlirOperationStateAddOperands, mlirOperationStateAddOwnedRegions, mlirOperationStateAddResults,
-    mlirOperationStateAddSuccessors, mlirOperationStateEnableResultTypeInference,
-    mlirOperationStateGet, MlirOperationState,
 };
 use std::marker::PhantomData;
 

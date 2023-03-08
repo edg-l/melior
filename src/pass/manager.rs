@@ -1,13 +1,13 @@
 use super::OperationManager;
-use crate::{
-    context::Context, ir::Module, logical_result::LogicalResult, pass::Pass, string_ref::StringRef,
-    Error,
-};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirPassManagerAddOwnedPass, mlirPassManagerCreate, mlirPassManagerDestroy,
     mlirPassManagerEnableIRPrinting, mlirPassManagerEnableVerifier,
     mlirPassManagerGetAsOpPassManager, mlirPassManagerGetNestedUnder, mlirPassManagerRun,
     MlirPassManager,
+};
+use crate::{
+    context::Context, ir::Module, logical_result::LogicalResult, pass::Pass, string_ref::StringRef,
+    Error,
 };
 use std::marker::PhantomData;
 
@@ -211,13 +211,16 @@ mod tests {
 
         assert_eq!(
             manager.as_operation_pass_manager().to_string(),
-            "builtin.module(func.func(print-op-stats{json=false}))"
+            "builtin.module(builtin.module(func.func(print-op-stats{json=false})))"
         );
         assert_eq!(
             module_manager.to_string(),
+            "builtin.module(func.func(print-op-stats{json=false}))"
+        );
+        assert_eq!(
+            function_manager.to_string(),
             "func.func(print-op-stats{json=false})"
         );
-        assert_eq!(function_manager.to_string(), "print-op-stats{json=false}");
     }
 
     #[test]
@@ -225,14 +228,14 @@ mod tests {
         let context = Context::new();
         let manager = Manager::new(&context);
 
-        assert_eq!(
+        assert!(matches!(
             parse_pass_pipeline(
                 manager.as_operation_pass_manager(),
                 "builtin.module(func.func(print-op-stats{json=false}),\
-                func.func(print-op-stats{json=false}))"
+            func.func(print-op-stats{json=false}))"
             ),
-            Err(Error::ParsePassPipeline)
-        );
+            Err(Error::ParsePassPipeline(_))
+        ));
 
         register_print_operation_stats();
 

@@ -2,8 +2,8 @@
 
 mod allocator;
 
+use crate::mlir_sys::{mlirTypeIDEqual, mlirTypeIDHashValue, MlirTypeID};
 pub use allocator::Allocator;
-use mlir_sys::{mlirTypeIDEqual, mlirTypeIDHashValue, MlirTypeID};
 use std::hash::{Hash, Hasher};
 
 /// A type ID.

@@ -1,8 +1,8 @@
-use crate::{ir::Module, logical_result::LogicalResult, string_ref::StringRef, Error};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirExecutionEngineCreate, mlirExecutionEngineDestroy, mlirExecutionEngineInvokePacked,
     MlirExecutionEngine,
 };
+use crate::{ir::Module, logical_result::LogicalResult, string_ref::StringRef, Error};
 use std::ffi::c_void;
 
 /// An execution engine.
@@ -20,7 +20,12 @@ impl ExecutionEngine {
     /// optimization_level is the optimization level to be used for transformation and code generation. LLVM passes at optLevel are run before code generation.
     ///
     /// shared_library_paths - The number and array of paths corresponding to shared libraries that will be loaded are specified via numPaths and sharedLibPaths
-    pub fn new(module: &Module, optimization_level: usize, shared_library_paths: &[&str]) -> Self {
+    pub fn new(
+        module: &Module,
+        optimization_level: usize,
+        shared_library_paths: &[&str],
+        enable_obj_dump: bool,
+    ) -> Self {
         Self {
             raw: unsafe {
                 mlirExecutionEngineCreate(
@@ -32,6 +37,7 @@ impl ExecutionEngine {
                         .map(|&string| StringRef::from(string).to_raw())
                         .collect::<Vec<_>>()
                         .as_ptr(),
+                    enable_obj_dump,
                 )
             },
         }
@@ -108,7 +114,7 @@ mod tests {
 
         assert_eq!(pass_manager.run(&mut module), Ok(()));
 
-        let engine = ExecutionEngine::new(&module, 2, &[]);
+        let engine = ExecutionEngine::new(&module, 2, &[], false);
 
         let mut argument = 42;
         let mut result = -1;

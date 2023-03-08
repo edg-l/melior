@@ -4,18 +4,18 @@ mod argument;
 
 pub use self::argument::Argument;
 use super::{Location, Operation, OperationRef, RegionRef, Type, TypeLike, Value};
-use crate::{
-    context::Context,
-    utility::{into_raw_array, print_callback},
-    Error,
-};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirBlockAddArgument, mlirBlockAppendOwnedOperation, mlirBlockCreate, mlirBlockDestroy,
     mlirBlockDetach, mlirBlockEqual, mlirBlockGetArgument, mlirBlockGetFirstOperation,
     mlirBlockGetNextInRegion, mlirBlockGetNumArguments, mlirBlockGetParentOperation,
     mlirBlockGetParentRegion, mlirBlockGetTerminator, mlirBlockInsertOwnedOperation,
     mlirBlockInsertOwnedOperationAfter, mlirBlockInsertOwnedOperationBefore, mlirBlockPrint,
     MlirBlock,
+};
+use crate::{
+    context::Context,
+    utility::{into_raw_array, print_callback},
+    Error,
 };
 use std::{
     ffi::c_void,

@@ -1,9 +1,9 @@
 use super::TypeLike;
-use crate::{ir::Type, utility::into_raw_array, Context, Error};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirFunctionTypeGet, mlirFunctionTypeGetInput, mlirFunctionTypeGetNumInputs,
     mlirFunctionTypeGetNumResults, mlirFunctionTypeGetResult, MlirType,
 };
+use crate::{ir::Type, utility::into_raw_array, Context, Error};
 use std::fmt::{self, Display, Formatter};
 
 /// A function type.

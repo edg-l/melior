@@ -1,5 +1,5 @@
 use super::Type;
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirValueDump, mlirValueGetType, mlirValueIsABlockArgument, mlirValueIsAOpResult, MlirValue,
 };
 

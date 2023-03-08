@@ -1,7 +1,7 @@
 //! General transformation passes.
 
 use super::Pass;
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirCreateTransformsCSE, mlirCreateTransformsCanonicalizer, mlirCreateTransformsInliner,
     mlirCreateTransformsPrintOpStats, mlirCreateTransformsSCCP, mlirCreateTransformsStripDebugInfo,
     mlirCreateTransformsSymbolDCE, mlirCreateTransformsSymbolPrivatize, mlirRegisterTransformsCSE,

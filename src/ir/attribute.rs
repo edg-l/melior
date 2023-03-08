@@ -1,18 +1,18 @@
 use super::{r#type, Type};
-use crate::{
-    context::{Context, ContextRef},
-    string_ref::StringRef,
-    utility::print_callback,
-};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirAttributeDump, mlirAttributeEqual, mlirAttributeGetContext, mlirAttributeGetNull,
     mlirAttributeGetType, mlirAttributeGetTypeID, mlirAttributeIsAAffineMap, mlirAttributeIsAArray,
     mlirAttributeIsABool, mlirAttributeIsADenseElements, mlirAttributeIsADenseFPElements,
     mlirAttributeIsADenseIntElements, mlirAttributeIsADictionary, mlirAttributeIsAElements,
     mlirAttributeIsAFloat, mlirAttributeIsAInteger, mlirAttributeIsAIntegerSet,
-    mlirAttributeIsAOpaque, mlirAttributeIsAOpaqueElements, mlirAttributeIsASparseElements,
-    mlirAttributeIsAString, mlirAttributeIsASymbolRef, mlirAttributeIsAType, mlirAttributeIsAUnit,
-    mlirAttributeParseGet, mlirAttributePrint, MlirAttribute,
+    mlirAttributeIsAOpaque, mlirAttributeIsASparseElements, mlirAttributeIsAString,
+    mlirAttributeIsASymbolRef, mlirAttributeIsAType, mlirAttributeIsAUnit, mlirAttributeParseGet,
+    mlirAttributePrint, MlirAttribute,
+};
+use crate::{
+    context::{Context, ContextRef},
+    string_ref::StringRef,
+    utility::print_callback,
 };
 use std::{
     ffi::c_void,
@@ -125,11 +125,6 @@ impl<'c> Attribute<'c> {
     /// Returns `true` if an attribute is opaque.
     pub fn is_opaque(&self) -> bool {
         !self.is_null() && unsafe { mlirAttributeIsAOpaque(self.raw) }
-    }
-
-    /// Returns `true` if an attribute is opaque elements.
-    pub fn is_opaque_elements(&self) -> bool {
-        !self.is_null() && unsafe { mlirAttributeIsAOpaqueElements(self.raw) }
     }
 
     /// Returns `true` if an attribute is sparse elements.

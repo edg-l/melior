@@ -1,4 +1,4 @@
-use mlir_sys::{mlirStringRefCreateFromCString, mlirStringRefEqual, MlirStringRef};
+use crate::mlir_sys::{mlirStringRefCreateFromCString, mlirStringRefEqual, MlirStringRef};
 use once_cell::sync::Lazy;
 use std::{
     collections::HashMap,
@@ -28,7 +28,7 @@ impl<'a> StringRef<'a> {
     /// Converts a string reference into a `str`.
     pub fn as_str(&self) -> Result<&str, Utf8Error> {
         unsafe {
-            let bytes = slice::from_raw_parts(self.raw.data as *mut u8, self.raw.length as usize);
+            let bytes = slice::from_raw_parts(self.raw.data as *mut u8, self.raw.length);
 
             str::from_utf8(if bytes[bytes.len() - 1] == 0 {
                 &bytes[..bytes.len() - 1]

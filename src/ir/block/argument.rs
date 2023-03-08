@@ -1,10 +1,10 @@
 use super::Value;
+use crate::mlir_sys::{
+    mlirBlockArgumentGetArgNumber, mlirBlockArgumentGetOwner, mlirBlockArgumentSetType, MlirValue,
+};
 use crate::{
     ir::{BlockRef, Type, TypeLike, ValueLike},
     Error,
-};
-use mlir_sys::{
-    mlirBlockArgumentGetArgNumber, mlirBlockArgumentGetOwner, mlirBlockArgumentSetType, MlirValue,
 };
 use std::fmt::{self, Display, Formatter};
 

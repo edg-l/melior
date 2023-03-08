@@ -1,6 +1,6 @@
 use super::Id;
 use crate::context::ContextRef;
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirTypeDump, mlirTypeGetContext, mlirTypeGetTypeID, mlirTypeIsABF16, mlirTypeIsAF16,
     mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAMemRef, mlirTypeIsATuple,
     mlirTypeIsAVector, MlirType,

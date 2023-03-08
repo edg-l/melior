@@ -1,9 +1,9 @@
 use super::Manager;
-use crate::{pass::Pass, string_ref::StringRef};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirOpPassManagerAddOwnedPass, mlirOpPassManagerGetNestedUnder, mlirPrintPassPipeline,
     MlirOpPassManager, MlirStringRef,
 };
+use crate::{pass::Pass, string_ref::StringRef};
 use std::{
     ffi::c_void,
     fmt::{self, Display, Formatter},

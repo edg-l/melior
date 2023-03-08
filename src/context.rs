@@ -1,13 +1,13 @@
-use crate::{
-    dialect::{self, Dialect},
-    string_ref::StringRef,
-};
-use mlir_sys::{
+use crate::mlir_sys::{
     mlirContextAppendDialectRegistry, mlirContextCreate, mlirContextDestroy,
     mlirContextEnableMultithreading, mlirContextEqual, mlirContextGetAllowUnregisteredDialects,
     mlirContextGetNumLoadedDialects, mlirContextGetNumRegisteredDialects,
     mlirContextGetOrLoadDialect, mlirContextIsRegisteredOperation,
     mlirContextLoadAllAvailableDialects, mlirContextSetAllowUnregisteredDialects, MlirContext,
+};
+use crate::{
+    dialect::{self, Dialect},
+    string_ref::StringRef,
 };
 use std::{marker::PhantomData, mem::transmute, ops::Deref};
 
