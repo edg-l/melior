@@ -143,14 +143,14 @@
 }
 
 <span class="kw">impl </span>ExecutionEngine {
-    <span class="doccomment">/// Creates an ExecutionEngine for the provided Module. 
-    /// 
-    /// The Module is expected to be &quot;translatable&quot; to LLVM IR (only contains operations in dialects that implement the LLVMTranslationDialectInterface). 
-    /// 
-    /// The module ownership stays with the client and can be destroyed as soon as the call returns. 
-    /// 
-    /// optimization_level is the optimization level to be used for transformation and code generation. LLVM passes at optLevel are run before code generation. 
-    /// 
+    <span class="doccomment">/// Creates an ExecutionEngine for the provided Module.
+    ///
+    /// The Module is expected to be &quot;translatable&quot; to LLVM IR (only contains operations in dialects that implement the LLVMTranslationDialectInterface).
+    ///
+    /// The module ownership stays with the client and can be destroyed as soon as the call returns.
+    ///
+    /// optimization_level is the optimization level to be used for transformation and code generation. LLVM passes at optLevel are run before code generation.
+    ///
     /// shared_library_paths - The number and array of paths corresponding to shared libraries that will be loaded are specified via numPaths and sharedLibPaths
     </span><span class="kw">pub fn </span>new(module: <span class="kw-2">&amp;</span>Module, optimization_level: usize, shared_library_paths: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
