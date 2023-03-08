@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["melior_next"];

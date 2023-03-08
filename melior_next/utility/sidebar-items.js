@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["parse_pass_pipeline","Parses a pass pipeline."],["register_all_dialects","Registers all dialects to a dialect registry."],["register_all_llvm_translations","Register all translations from other dialects to the `llvm` dialect."],["register_all_passes","Register all passes."]]};

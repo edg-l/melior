@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Allocator","A type ID allocator."],["Id","A type ID."]]};

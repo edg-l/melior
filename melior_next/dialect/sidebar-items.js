@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["llvm","The `llvm` dialect"]],"struct":[["Dialect","A dialect."],["Handle","A dialect handle."],["Registry","A dialect registry."]]};
