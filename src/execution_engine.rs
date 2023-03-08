@@ -11,14 +11,14 @@ pub struct ExecutionEngine {
 }
 
 impl ExecutionEngine {
-    /// Creates an ExecutionEngine for the provided Module. 
-    /// 
-    /// The Module is expected to be "translatable" to LLVM IR (only contains operations in dialects that implement the LLVMTranslationDialectInterface). 
-    /// 
-    /// The module ownership stays with the client and can be destroyed as soon as the call returns. 
-    /// 
-    /// optimization_level is the optimization level to be used for transformation and code generation. LLVM passes at optLevel are run before code generation. 
-    /// 
+    /// Creates an ExecutionEngine for the provided Module.
+    ///
+    /// The Module is expected to be "translatable" to LLVM IR (only contains operations in dialects that implement the LLVMTranslationDialectInterface).
+    ///
+    /// The module ownership stays with the client and can be destroyed as soon as the call returns.
+    ///
+    /// optimization_level is the optimization level to be used for transformation and code generation. LLVM passes at optLevel are run before code generation.
+    ///
     /// shared_library_paths - The number and array of paths corresponding to shared libraries that will be loaded are specified via numPaths and sharedLibPaths
     pub fn new(module: &Module, optimization_level: usize, shared_library_paths: &[&str]) -> Self {
         Self {
