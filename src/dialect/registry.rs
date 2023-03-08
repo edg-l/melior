@@ -14,7 +14,7 @@ impl Registry {
         }
     }
 
-    pub(crate) unsafe fn to_raw(&self) -> MlirDialectRegistry {
+    pub(crate) const unsafe fn to_raw(&self) -> MlirDialectRegistry {
         self.raw
     }
 }

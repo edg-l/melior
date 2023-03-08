@@ -182,7 +182,7 @@ impl<'c> Attribute<'c> {
         }
     }
 
-    pub(crate) unsafe fn to_raw(self) -> MlirAttribute {
+    pub(crate) const unsafe fn to_raw(self) -> MlirAttribute {
         self.raw
     }
 }

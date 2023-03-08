@@ -13,7 +13,7 @@ pub struct Id {
 }
 
 impl Id {
-    pub(crate) unsafe fn from_raw(raw: MlirTypeID) -> Self {
+    pub(crate) const unsafe fn from_raw(raw: MlirTypeID) -> Self {
         Self { raw }
     }
 }

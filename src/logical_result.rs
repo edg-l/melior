@@ -1,7 +1,7 @@
 use mlir_sys::MlirLogicalResult;
 
 /// A logical result of success or failure.
-pub(crate) struct LogicalResult {
+pub struct LogicalResult {
     raw: MlirLogicalResult,
 }
 
@@ -9,30 +9,30 @@ pub(crate) struct LogicalResult {
 #[allow(unused)]
 impl LogicalResult {
     /// Creates a success result.
-    pub fn success() -> Self {
+    pub const fn success() -> Self {
         Self {
             raw: MlirLogicalResult { value: 1 },
         }
     }
 
     /// Creates a failure result.
-    pub fn failure() -> Self {
+    pub const fn failure() -> Self {
         Self {
             raw: MlirLogicalResult { value: 0 },
         }
     }
 
     /// Returns `true` if a result is success.
-    pub fn is_success(&self) -> bool {
+    pub const fn is_success(&self) -> bool {
         self.raw.value != 0
     }
 
     /// Returns `true` if a result is failure.
-    pub fn is_failure(&self) -> bool {
+    pub const fn is_failure(&self) -> bool {
         self.raw.value == 0
     }
 
-    pub(crate) fn from_raw(result: MlirLogicalResult) -> Self {
+    pub(crate) const fn from_raw(result: MlirLogicalResult) -> Self {
         Self { raw: result }
     }
 }

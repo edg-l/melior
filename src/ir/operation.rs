@@ -179,7 +179,7 @@ pub struct OperationRef<'a> {
 }
 
 impl<'a> OperationRef<'a> {
-    pub(crate) unsafe fn to_raw(self) -> MlirOperation {
+    pub(crate) const unsafe fn to_raw(self) -> MlirOperation {
         self.raw
     }
 

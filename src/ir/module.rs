@@ -68,7 +68,7 @@ impl<'c> Module<'c> {
         }
     }
 
-    pub(crate) unsafe fn to_raw(&self) -> MlirModule {
+    pub(crate) const unsafe fn to_raw(&self) -> MlirModule {
         self.raw
     }
 }
