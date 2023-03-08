@@ -505,7 +505,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; OperationRef&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>to_raw(<span class="self">self</span>) -&gt; MlirOperation {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const unsafe fn </span>to_raw(<span class="self">self</span>) -&gt; MlirOperation {
         <span class="self">self</span>.raw
     }
 

@@ -54,7 +54,7 @@
 </pre><pre class="rust"><code><span class="kw">use </span>mlir_sys::MlirLogicalResult;
 
 <span class="doccomment">/// A logical result of success or failure.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>LogicalResult {
+</span><span class="kw">pub struct </span>LogicalResult {
     raw: MlirLogicalResult,
 }
 
@@ -62,30 +62,30 @@
 </span><span class="attr">#[allow(unused)]
 </span><span class="kw">impl </span>LogicalResult {
     <span class="doccomment">/// Creates a success result.
-    </span><span class="kw">pub fn </span>success() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>success() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             raw: MlirLogicalResult { value: <span class="number">1 </span>},
         }
     }
 
     <span class="doccomment">/// Creates a failure result.
-    </span><span class="kw">pub fn </span>failure() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>failure() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             raw: MlirLogicalResult { value: <span class="number">0 </span>},
         }
     }
 
     <span class="doccomment">/// Returns `true` if a result is success.
-    </span><span class="kw">pub fn </span>is_success(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub const fn </span>is_success(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.raw.value != <span class="number">0
     </span>}
 
     <span class="doccomment">/// Returns `true` if a result is failure.
-    </span><span class="kw">pub fn </span>is_failure(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub const fn </span>is_failure(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.raw.value == <span class="number">0
     </span>}
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_raw(result: MlirLogicalResult) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>from_raw(result: MlirLogicalResult) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ raw: result }
     }
 }

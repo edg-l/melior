@@ -48,7 +48,7 @@
 }
 
 <span class="kw">impl </span>Id {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>from_raw(raw: MlirTypeID) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const unsafe fn </span>from_raw(raw: MlirTypeID) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ raw }
     }
 }

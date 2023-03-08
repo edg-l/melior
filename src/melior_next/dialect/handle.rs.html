@@ -239,7 +239,7 @@
         <span class="kw">unsafe </span>{ mlirDialectHandleRegisterDialect(<span class="self">self</span>.raw, context.to_raw()) }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>from_raw(handle: MlirDialectHandle) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const unsafe fn </span>from_raw(handle: MlirDialectHandle) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ raw: handle }
     }
 }
