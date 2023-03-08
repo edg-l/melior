@@ -31,6 +31,8 @@ impl ExecutionEngine {
 
     /// Invokes a function in a module. The `arguments` argument includes
     /// pointers to results of the function as well as arguments.
+    /// 
+    /// The function must have been tagged with the llvm.emit_c_interface attribute.
     ///
     /// # Safety
     ///
