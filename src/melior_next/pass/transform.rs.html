@@ -93,7 +93,7 @@
 </pre><pre class="rust"><code><span class="doccomment">//! General transformation passes.
 
 </span><span class="kw">use </span><span class="kw">super</span>::Pass;
-<span class="kw">use </span>mlir_sys::{
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirCreateTransformsCSE, mlirCreateTransformsCanonicalizer, mlirCreateTransformsInliner,
     mlirCreateTransformsPrintOpStats, mlirCreateTransformsSCCP, mlirCreateTransformsStripDebugInfo,
     mlirCreateTransformsSymbolDCE, mlirCreateTransformsSymbolPrivatize, mlirRegisterTransformsCSE,

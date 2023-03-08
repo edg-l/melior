@@ -509,18 +509,18 @@
 
 <span class="kw">pub use </span><span class="self">self</span>::argument::Argument;
 <span class="kw">use super</span>::{Location, Operation, OperationRef, RegionRef, Type, TypeLike, Value};
-<span class="kw">use crate</span>::{
-    context::Context,
-    utility::{into_raw_array, print_callback},
-    Error,
-};
-<span class="kw">use </span>mlir_sys::{
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirBlockAddArgument, mlirBlockAppendOwnedOperation, mlirBlockCreate, mlirBlockDestroy,
     mlirBlockDetach, mlirBlockEqual, mlirBlockGetArgument, mlirBlockGetFirstOperation,
     mlirBlockGetNextInRegion, mlirBlockGetNumArguments, mlirBlockGetParentOperation,
     mlirBlockGetParentRegion, mlirBlockGetTerminator, mlirBlockInsertOwnedOperation,
     mlirBlockInsertOwnedOperationAfter, mlirBlockInsertOwnedOperationBefore, mlirBlockPrint,
     MlirBlock,
+};
+<span class="kw">use crate</span>::{
+    context::Context,
+    utility::{into_raw_array, print_callback},
+    Error,
 };
 <span class="kw">use </span>std::{
     ffi::c_void,

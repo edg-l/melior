@@ -71,6 +71,8 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Dialect handles, instances, and registry.
 
 </span><span class="kw">mod </span>handle;
@@ -78,11 +80,13 @@
 <span class="kw">mod </span>registry;
 
 <span class="kw">pub use </span><span class="self">self</span>::{handle::Handle, registry::Registry};
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
+    mlirDialectEqual, mlirDialectGetContext, mlirDialectGetNamespace, MlirDialect,
+};
 <span class="kw">use crate</span>::{
     context::{Context, ContextRef},
     string_ref::StringRef,
 };
-<span class="kw">use </span>mlir_sys::{mlirDialectEqual, mlirDialectGetContext, mlirDialectGetNamespace, MlirDialect};
 <span class="kw">use </span>std::marker::PhantomData;
 
 <span class="doccomment">/// A dialect.

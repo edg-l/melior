@@ -196,7 +196,7 @@
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
 </pre><pre class="rust"><code><span class="kw">use super</span>::{Block, BlockRef};
-<span class="kw">use </span>mlir_sys::{
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirRegionAppendOwnedBlock, mlirRegionCreate, mlirRegionDestroy, mlirRegionEqual,
     mlirRegionGetFirstBlock, mlirRegionInsertOwnedBlockAfter, mlirRegionInsertOwnedBlockBefore,
     MlirRegion,
@@ -267,7 +267,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>into_raw(<span class="self">self</span>) -&gt; mlir_sys::MlirRegion {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>into_raw(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::mlir_sys::MlirRegion {
         <span class="kw">let </span>region = <span class="self">self</span>.raw;
 
         forget(<span class="self">self</span>);

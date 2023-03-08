@@ -209,16 +209,16 @@
 <a href="#209" id="209">209</a>
 <a href="#210" id="210">210</a>
 <a href="#211" id="211">211</a>
-</pre><pre class="rust"><code><span class="kw">use crate</span>::{
-    dialect::{<span class="self">self</span>, Dialect},
-    string_ref::StringRef,
-};
-<span class="kw">use </span>mlir_sys::{
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirContextAppendDialectRegistry, mlirContextCreate, mlirContextDestroy,
     mlirContextEnableMultithreading, mlirContextEqual, mlirContextGetAllowUnregisteredDialects,
     mlirContextGetNumLoadedDialects, mlirContextGetNumRegisteredDialects,
     mlirContextGetOrLoadDialect, mlirContextIsRegisteredOperation,
     mlirContextLoadAllAvailableDialects, mlirContextSetAllowUnregisteredDialects, MlirContext,
+};
+<span class="kw">use crate</span>::{
+    dialect::{<span class="self">self</span>, Dialect},
+    string_ref::StringRef,
 };
 <span class="kw">use </span>std::{marker::PhantomData, mem::transmute, ops::Deref};
 

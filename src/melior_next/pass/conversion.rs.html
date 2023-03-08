@@ -77,9 +77,9 @@
 </pre><pre class="rust"><code><span class="doccomment">//! Dialect conversion passes.
 
 </span><span class="kw">use </span><span class="kw">super</span>::Pass;
-<span class="kw">use </span>mlir_sys::{
-    mlirCreateConversionConvertAffineForToGPU, mlirCreateConversionConvertAffineToStandard,
-    mlirCreateConversionConvertArithmeticToLLVM, mlirCreateConversionConvertAsyncToLLVM,
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
+    mlirCreateConversionArithToLLVMConversionPass, mlirCreateConversionConvertAffineForToGPU,
+    mlirCreateConversionConvertAffineToStandard, mlirCreateConversionConvertAsyncToLLVM,
     mlirCreateConversionConvertControlFlowToLLVM, mlirCreateConversionConvertControlFlowToSPIRV,
     mlirCreateConversionConvertFuncToLLVM, mlirCreateConversionConvertMathToLLVM,
     mlirCreateConversionConvertMathToLibm, mlirCreateConversionConvertMathToSPIRV,
@@ -88,7 +88,7 @@
 
 <span class="doccomment">/// Creates a pass to convert the `arith` dialect to the `llvm` dialect.
 </span><span class="kw">pub fn </span>convert_arithmetic_to_llvm() -&gt; Pass {
-    Pass::from_raw_fn(mlirCreateConversionConvertArithmeticToLLVM)
+    Pass::from_raw_fn(mlirCreateConversionArithToLLVMConversionPass)
 }
 
 <span class="doccomment">/// Creates a pass to convert the `cf` dialect to the `llvm` dialect.

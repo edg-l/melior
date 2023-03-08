@@ -178,13 +178,13 @@
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::TypeLike;
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
+    mlirMemRefTypeGet, mlirMemRefTypeGetAffineMap, mlirMemRefTypeGetChecked,
+    mlirMemRefTypeGetLayout, mlirMemRefTypeGetMemorySpace, MlirType,
+};
 <span class="kw">use crate</span>::{
     ir::{affine_map::AffineMap, Attribute, Location, Type},
     Error,
-};
-<span class="kw">use </span>mlir_sys::{
-    mlirMemRefTypeGet, mlirMemRefTypeGetAffineMap, mlirMemRefTypeGetChecked,
-    mlirMemRefTypeGetLayout, mlirMemRefTypeGetMemorySpace, MlirType,
 };
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Display, Formatter};
 

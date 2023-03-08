@@ -151,14 +151,14 @@
 <a href="#151" id="151">151</a>
 </pre><pre class="rust"><code><span class="doccomment">//! LLVM types
 
-</span><span class="kw">use crate</span>::{
+</span><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
+    mlirLLVMArrayTypeGet, mlirLLVMFunctionTypeGet, mlirLLVMPointerTypeGet,
+    mlirLLVMStructTypeLiteralGet, mlirLLVMVoidTypeGet,
+};
+<span class="kw">use crate</span>::{
     context::Context,
     ir::{Type, TypeLike},
     utility::into_raw_array,
-};
-<span class="kw">use </span>mlir_sys::{
-    mlirLLVMArrayTypeGet, mlirLLVMFunctionTypeGet, mlirLLVMPointerTypeGet,
-    mlirLLVMStructTypeLiteralGet, mlirLLVMVoidTypeGet,
 };
 
 <span class="comment">// TODO Check if the `llvm` dialect is loaded on use of those functions.
@@ -259,7 +259,7 @@
 
         <span class="macro">assert_eq!</span>(
             <span class="kw">super</span>::array(i32, <span class="number">4</span>),
-            Type::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;!llvm.array&lt;4xi32&gt;&quot;</span>).unwrap()
+            Type::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;!llvm.array&lt;4 x i32&gt;&quot;</span>).unwrap()
         );
     }
 

@@ -331,19 +331,19 @@
 
 <span class="kw">pub use </span><span class="self">self</span>::{builder::Builder, result::ResultValue};
 <span class="kw">use super</span>::{BlockRef, Identifier, RegionRef, Value};
-<span class="kw">use crate</span>::{
-    context::{Context, ContextRef},
-    utility::print_callback,
-    Error,
-};
-<span class="kw">use </span>core::fmt;
-<span class="kw">use </span>mlir_sys::{
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirOperationClone, mlirOperationDestroy, mlirOperationDump, mlirOperationEqual,
     mlirOperationGetBlock, mlirOperationGetContext, mlirOperationGetName,
     mlirOperationGetNextInBlock, mlirOperationGetNumRegions, mlirOperationGetNumResults,
     mlirOperationGetRegion, mlirOperationGetResult, mlirOperationPrint, mlirOperationVerify,
     MlirOperation,
 };
+<span class="kw">use crate</span>::{
+    context::{Context, ContextRef},
+    utility::print_callback,
+    Error,
+};
+<span class="kw">use </span>core::fmt;
 <span class="kw">use </span>std::{
     ffi::c_void,
     fmt::{Debug, Display, Formatter},

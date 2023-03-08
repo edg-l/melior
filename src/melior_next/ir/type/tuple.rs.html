@@ -128,8 +128,8 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::TypeLike;
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{mlirTupleTypeGet, mlirTupleTypeGetNumTypes, mlirTupleTypeGetType, MlirType};
 <span class="kw">use crate</span>::{ir::Type, utility::into_raw_array, Context, Error};
-<span class="kw">use </span>mlir_sys::{mlirTupleTypeGet, mlirTupleTypeGetNumTypes, mlirTupleTypeGetType, MlirType};
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Display, Formatter};
 
 <span class="doccomment">/// A tuple type.

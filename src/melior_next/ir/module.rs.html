@@ -133,13 +133,13 @@
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
 </pre><pre class="rust"><code><span class="kw">use super</span>::{BlockRef, Location, Operation, OperationRef};
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
+    mlirModuleCreateEmpty, mlirModuleCreateParse, mlirModuleDestroy, mlirModuleFromOperation,
+    mlirModuleGetBody, mlirModuleGetContext, mlirModuleGetOperation, MlirModule,
+};
 <span class="kw">use crate</span>::{
     context::{Context, ContextRef},
     string_ref::StringRef,
-};
-<span class="kw">use </span>mlir_sys::{
-    mlirModuleCreateEmpty, mlirModuleCreateParse, mlirModuleDestroy, mlirModuleFromOperation,
-    mlirModuleGetBody, mlirModuleGetContext, mlirModuleGetOperation, MlirModule,
 };
 <span class="kw">use </span>std::marker::PhantomData;
 

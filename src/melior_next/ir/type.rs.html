@@ -306,6 +306,10 @@
 <a href="#306" id="306">306</a>
 <a href="#307" id="307">307</a>
 <a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Types and type IDs.
 
 </span><span class="kw">mod </span>function;
@@ -317,13 +321,13 @@
 <span class="kw">use </span><span class="self">self</span>::mem_ref::MemRef;
 <span class="kw">pub use </span><span class="self">self</span>::{function::Function, id::Id, tuple::Tuple, type_like::TypeLike};
 <span class="kw">use </span><span class="kw">super</span>::Location;
-<span class="kw">use crate</span>::{context::Context, string_ref::StringRef, utility::print_callback};
-<span class="kw">use </span>mlir_sys::{
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirBF16TypeGet, mlirF16TypeGet, mlirF32TypeGet, mlirF64TypeGet, mlirIndexTypeGet,
     mlirIntegerTypeGet, mlirIntegerTypeSignedGet, mlirIntegerTypeUnsignedGet, mlirNoneTypeGet,
     mlirTypeEqual, mlirTypeParseGet, mlirTypePrint, mlirVectorTypeGet, mlirVectorTypeGetChecked,
     MlirType,
 };
+<span class="kw">use crate</span>::{context::Context, string_ref::StringRef, utility::print_callback};
 <span class="kw">use </span>std::{
     ffi::c_void,
     fmt::{<span class="self">self</span>, Debug, Display, Formatter},
@@ -340,6 +344,10 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;c</span>&gt; Type&lt;<span class="lifetime">&#39;c</span>&gt; {
     <span class="doccomment">/// Parses a type.
+    ///
+    /// Be mindful of spaces.
+    ///
+    /// E.g `!llvm.array&lt;4 x i32&gt;` is valid. But `!llvm.array&lt;4xi32&gt;` is not.
     </span><span class="kw">pub fn </span>parse(context: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>Context, source: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">unsafe </span>{
             <span class="self">Self</span>::from_option_raw(mlirTypeParseGet(

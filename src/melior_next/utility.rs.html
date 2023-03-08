@@ -119,14 +119,28 @@
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Utility functions.
 
-</span><span class="kw">use crate</span>::{
-    context::Context, dialect, logical_result::LogicalResult, pass, string_ref::StringRef, Error,
-};
-<span class="kw">use </span>mlir_sys::{
+</span><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirParsePassPipeline, mlirRegisterAllDialects, mlirRegisterAllLLVMTranslations,
     mlirRegisterAllPasses, MlirStringRef,
+};
+<span class="kw">use crate</span>::{
+    context::Context, dialect, logical_result::LogicalResult, pass, string_ref::StringRef, Error,
 };
 <span class="kw">use </span>std::{
     ffi::c_void,
@@ -154,14 +168,20 @@
 
 <span class="doccomment">/// Parses a pass pipeline.
 </span><span class="kw">pub fn </span>parse_pass_pipeline(manager: pass::OperationManager, source: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>error_msg = String::new();
     <span class="kw">let </span>result = LogicalResult::from_raw(<span class="kw">unsafe </span>{
-        mlirParsePassPipeline(manager.to_raw(), StringRef::from(source).to_raw())
+        mlirParsePassPipeline(
+            manager.to_raw(),
+            StringRef::from(source).to_raw(),
+            <span class="prelude-val">Some</span>(error_callback),
+            <span class="kw-2">&amp;mut </span>error_msg <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span>c_void,
+        )
     });
 
     <span class="kw">if </span>result.is_success() {
         <span class="prelude-val">Ok</span>(())
     } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(Error::ParsePassPipeline)
+        <span class="prelude-val">Err</span>(Error::ParsePassPipeline(error_msg))
     }
 }
 
@@ -186,6 +206,14 @@
                 .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?
         </span>)
     })();
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>error_callback(string: MlirStringRef, data: <span class="kw-2">*mut </span>c_void) {
+    <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>String);
+
+    <span class="kw">let </span>err = StringRef::from_raw(string);
+    <span class="kw">let </span>error = err.as_str().unwrap();
+    data.push_str(error);
 }
 
 <span class="attr">#[cfg(test)]

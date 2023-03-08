@@ -142,8 +142,7 @@
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Registry;
-<span class="kw">use crate</span>::{context::Context, dialect::Dialect, string_ref::StringRef};
-<span class="kw">use </span>mlir_sys::{
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirDialectHandleGetNamespace, mlirDialectHandleInsertDialect, mlirDialectHandleLoadDialect,
     mlirDialectHandleRegisterDialect, mlirGetDialectHandle__async__, mlirGetDialectHandle__cf__,
     mlirGetDialectHandle__func__, mlirGetDialectHandle__gpu__, mlirGetDialectHandle__linalg__,
@@ -151,6 +150,7 @@
     mlirGetDialectHandle__scf__, mlirGetDialectHandle__shape__,
     mlirGetDialectHandle__sparse_tensor__, mlirGetDialectHandle__tensor__, MlirDialectHandle,
 };
+<span class="kw">use crate</span>::{context::Context, dialect::Dialect, string_ref::StringRef};
 
 <span class="doccomment">/// A dialect handle.
 </span><span class="attr">#[derive(Clone, Copy, Debug)]

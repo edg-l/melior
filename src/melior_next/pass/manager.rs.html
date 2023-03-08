@@ -252,16 +252,19 @@
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::OperationManager;
-<span class="kw">use crate</span>::{
-    context::Context, ir::Module, logical_result::LogicalResult, pass::Pass, string_ref::StringRef,
-    Error,
-};
-<span class="kw">use </span>mlir_sys::{
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirPassManagerAddOwnedPass, mlirPassManagerCreate, mlirPassManagerDestroy,
     mlirPassManagerEnableIRPrinting, mlirPassManagerEnableVerifier,
     mlirPassManagerGetAsOpPassManager, mlirPassManagerGetNestedUnder, mlirPassManagerRun,
     MlirPassManager,
+};
+<span class="kw">use crate</span>::{
+    context::Context, ir::Module, logical_result::LogicalResult, pass::Pass, string_ref::StringRef,
+    Error,
 };
 <span class="kw">use </span>std::marker::PhantomData;
 
@@ -465,13 +468,16 @@
 
         <span class="macro">assert_eq!</span>(
             manager.as_operation_pass_manager().to_string(),
-            <span class="string">&quot;builtin.module(func.func(print-op-stats{json=false}))&quot;
+            <span class="string">&quot;builtin.module(builtin.module(func.func(print-op-stats{json=false})))&quot;
         </span>);
         <span class="macro">assert_eq!</span>(
             module_manager.to_string(),
+            <span class="string">&quot;builtin.module(func.func(print-op-stats{json=false}))&quot;
+        </span>);
+        <span class="macro">assert_eq!</span>(
+            function_manager.to_string(),
             <span class="string">&quot;func.func(print-op-stats{json=false})&quot;
         </span>);
-        <span class="macro">assert_eq!</span>(function_manager.to_string(), <span class="string">&quot;print-op-stats{json=false}&quot;</span>);
     }
 
     <span class="attr">#[test]
@@ -479,14 +485,14 @@
         <span class="kw">let </span>context = Context::new();
         <span class="kw">let </span>manager = Manager::new(<span class="kw-2">&amp;</span>context);
 
-        <span class="macro">assert_eq!</span>(
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(
             parse_pass_pipeline(
                 manager.as_operation_pass_manager(),
                 <span class="string">&quot;builtin.module(func.func(print-op-stats{json=false}),\
-                func.func(print-op-stats{json=false}))&quot;
+            func.func(print-op-stats{json=false}))&quot;
             </span>),
-            <span class="prelude-val">Err</span>(Error::ParsePassPipeline)
-        );
+            <span class="prelude-val">Err</span>(Error::ParsePassPipeline(<span class="kw">_</span>))
+        ));
 
         register_print_operation_stats();
 

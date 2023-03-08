@@ -130,11 +130,17 @@
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
-</pre><pre class="rust"><code><span class="kw">use crate</span>::{ir::Module, logical_result::LogicalResult, string_ref::StringRef, Error};
-<span class="kw">use </span>mlir_sys::{
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirExecutionEngineCreate, mlirExecutionEngineDestroy, mlirExecutionEngineInvokePacked,
     MlirExecutionEngine,
 };
+<span class="kw">use crate</span>::{ir::Module, logical_result::LogicalResult, string_ref::StringRef, Error};
 <span class="kw">use </span>std::ffi::c_void;
 
 <span class="doccomment">/// An execution engine.
@@ -152,7 +158,12 @@
     /// optimization_level is the optimization level to be used for transformation and code generation. LLVM passes at optLevel are run before code generation.
     ///
     /// shared_library_paths - The number and array of paths corresponding to shared libraries that will be loaded are specified via numPaths and sharedLibPaths
-    </span><span class="kw">pub fn </span>new(module: <span class="kw-2">&amp;</span>Module, optimization_level: usize, shared_library_paths: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(
+        module: <span class="kw-2">&amp;</span>Module,
+        optimization_level: usize,
+        shared_library_paths: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str],
+        enable_obj_dump: bool,
+    ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             raw: <span class="kw">unsafe </span>{
                 mlirExecutionEngineCreate(
@@ -164,6 +175,7 @@
                         .map(|<span class="kw-2">&amp;</span>string| StringRef::from(string).to_raw())
                         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
                         .as_ptr(),
+                    enable_obj_dump,
                 )
             },
         }
@@ -240,7 +252,7 @@
 
         <span class="macro">assert_eq!</span>(pass_manager.run(<span class="kw-2">&amp;mut </span>module), <span class="prelude-val">Ok</span>(()));
 
-        <span class="kw">let </span>engine = ExecutionEngine::new(<span class="kw-2">&amp;</span>module, <span class="number">2</span>, <span class="kw-2">&amp;</span>[]);
+        <span class="kw">let </span>engine = ExecutionEngine::new(<span class="kw-2">&amp;</span>module, <span class="number">2</span>, <span class="kw-2">&amp;</span>[], <span class="bool-val">false</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>argument = <span class="number">42</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>result = -<span class="number">1</span>;

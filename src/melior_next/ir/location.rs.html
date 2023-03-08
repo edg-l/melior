@@ -174,15 +174,15 @@
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
-</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
+    mlirLocationEqual, mlirLocationFileLineColGet, mlirLocationFusedGet, mlirLocationGetContext,
+    mlirLocationNameGet, mlirLocationPrint, mlirLocationUnknownGet, MlirLocation,
+};
+<span class="kw">use crate</span>::{
     context::{Context, ContextRef},
     ir::Attribute,
     string_ref::StringRef,
     utility::{into_raw_array, print_callback},
-};
-<span class="kw">use </span>mlir_sys::{
-    mlirLocationEqual, mlirLocationFileLineColGet, mlirLocationFusedGet, mlirLocationGetContext,
-    mlirLocationNameGet, mlirLocationPrint, mlirLocationUnknownGet, MlirLocation,
 };
 <span class="kw">use </span>std::{
     ffi::c_void,

@@ -260,8 +260,8 @@
 
 <span class="kw">pub use </span><span class="self">self</span>::value_like::ValueLike;
 <span class="kw">use super</span>::{block, operation, Type};
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{mlirValueEqual, mlirValuePrint, MlirValue};
 <span class="kw">use </span><span class="kw">crate</span>::utility::print_callback;
-<span class="kw">use </span>mlir_sys::{mlirValueEqual, mlirValuePrint, MlirValue};
 <span class="kw">use </span>std::{
     ffi::c_void,
     fmt::{<span class="self">self</span>, Debug, Display, Formatter},

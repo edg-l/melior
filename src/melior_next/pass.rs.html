@@ -32,7 +32,7 @@
 <span class="kw">pub mod </span>transform;
 
 <span class="kw">pub use </span><span class="self">self</span>::{manager::Manager, operation_manager::OperationManager};
-<span class="kw">use </span>mlir_sys::MlirPass;
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::MlirPass;
 
 <span class="doccomment">/// A pass.
 </span><span class="kw">pub struct </span>Pass {

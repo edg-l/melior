@@ -37,8 +37,8 @@
 
 </span><span class="kw">mod </span>allocator;
 
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{mlirTypeIDEqual, mlirTypeIDHashValue, MlirTypeID};
 <span class="kw">pub use </span>allocator::Allocator;
-<span class="kw">use </span>mlir_sys::{mlirTypeIDEqual, mlirTypeIDHashValue, MlirTypeID};
 <span class="kw">use </span>std::hash::{Hash, Hasher};
 
 <span class="doccomment">/// A type ID.

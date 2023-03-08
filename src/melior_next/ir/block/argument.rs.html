@@ -98,12 +98,12 @@
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Value;
+<span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
+    mlirBlockArgumentGetArgNumber, mlirBlockArgumentGetOwner, mlirBlockArgumentSetType, MlirValue,
+};
 <span class="kw">use crate</span>::{
     ir::{BlockRef, Type, TypeLike, ValueLike},
     Error,
-};
-<span class="kw">use </span>mlir_sys::{
-    mlirBlockArgumentGetArgNumber, mlirBlockArgumentGetOwner, mlirBlockArgumentSetType, MlirValue,
 };
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Display, Formatter};
 
