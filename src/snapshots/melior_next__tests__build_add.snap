@@ -1,5 +1,6 @@
 ---
 source: src/lib.rs
+assertion_line: 198
 expression: module.as_operation()
 ---
 module {

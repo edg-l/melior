@@ -2,10 +2,12 @@
 
 use super::Pass;
 use mlir_sys::{
-    mlirCreateConversionConvertArithmeticToLLVM, mlirCreateConversionConvertControlFlowToLLVM,
-    mlirCreateConversionConvertControlFlowToSPIRV, mlirCreateConversionConvertFuncToLLVM,
-    mlirCreateConversionConvertMathToLLVM, mlirCreateConversionConvertMathToLibm,
-    mlirCreateConversionConvertMathToSPIRV,
+    mlirCreateConversionConvertAffineForToGPU, mlirCreateConversionConvertAffineToStandard,
+    mlirCreateConversionConvertArithmeticToLLVM, mlirCreateConversionConvertAsyncToLLVM,
+    mlirCreateConversionConvertControlFlowToLLVM, mlirCreateConversionConvertControlFlowToSPIRV,
+    mlirCreateConversionConvertFuncToLLVM, mlirCreateConversionConvertMathToLLVM,
+    mlirCreateConversionConvertMathToLibm, mlirCreateConversionConvertMathToSPIRV,
+    mlirCreateConversionGpuToLLVMConversionPass, mlirCreateConversionSCFToControlFlow,
 };
 
 /// Creates a pass to convert the `arith` dialect to the `llvm` dialect.
@@ -14,8 +16,13 @@ pub fn convert_arithmetic_to_llvm() -> Pass {
 }
 
 /// Creates a pass to convert the `cf` dialect to the `llvm` dialect.
-pub fn convert_scf_to_llvm() -> Pass {
+pub fn convert_cf_to_llvm() -> Pass {
     Pass::from_raw_fn(mlirCreateConversionConvertControlFlowToLLVM)
+}
+
+/// Creates a pass to convert the `scf` dialect to the `cf` dialect.
+pub fn convert_scf_to_cf() -> Pass {
+    Pass::from_raw_fn(mlirCreateConversionSCFToControlFlow)
 }
 
 /// Creates a pass to convert the `func` dialect to the `llvm` dialect.
@@ -29,7 +36,7 @@ pub fn convert_math_to_llvm() -> Pass {
 }
 
 /// Creates a pass to convert the `cf` dialect to the `spirv` dialect.
-pub fn convert_scf_to_spirv() -> Pass {
+pub fn convert_cf_to_spirv() -> Pass {
     Pass::from_raw_fn(mlirCreateConversionConvertControlFlowToSPIRV)
 }
 
@@ -41,4 +48,29 @@ pub fn convert_math_to_spirv() -> Pass {
 /// Creates a pass to convert the `math` dialect to the `libm` dialect.
 pub fn convert_math_to_libm() -> Pass {
     Pass::from_raw_fn(mlirCreateConversionConvertMathToLibm)
+}
+
+/// Creates a pass to convert the `affine for` dialect to the `gpu` dialect.
+pub fn convert_affine_for_to_gpu() -> Pass {
+    Pass::from_raw_fn(mlirCreateConversionConvertAffineForToGPU)
+}
+
+/// Creates a pass to convert the `affine` dialect to the `standard` dialect.
+pub fn convert_affine_to_standard() -> Pass {
+    Pass::from_raw_fn(mlirCreateConversionConvertAffineToStandard)
+}
+
+/// Creates a pass to convert the `async` dialect to the `llvm` dialect.
+pub fn convert_async_to_llvm() -> Pass {
+    Pass::from_raw_fn(mlirCreateConversionConvertAsyncToLLVM)
+}
+
+/// Creates a pass to convert the `gpu` dialect to the `llvm` dialect.
+pub fn convert_gpu_to_llvm() -> Pass {
+    Pass::from_raw_fn(mlirCreateConversionGpuToLLVMConversionPass)
+}
+
+/// Creates a pass to convert the `affiner for` dialect to the `gpu` dialect.
+pub fn convert_affiner_for_to_gpu() -> Pass {
+    Pass::from_raw_fn(mlirCreateConversionConvertAffineForToGPU)
 }

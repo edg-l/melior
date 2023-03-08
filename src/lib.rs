@@ -34,7 +34,7 @@
 //! ## Building a function to add integers
 //!
 //! ```rust
-//! use melior::{
+//! use melior_next::{
 //!     Context,
 //!     dialect,
 //!     ir::*,

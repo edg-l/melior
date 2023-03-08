@@ -1,19 +1,54 @@
-name: document
+name: Deploy Docs to GitHub Pages
+
 on:
   push:
     branches:
       - main
-  pull_request:
+
+permissions:
+  contents: write
+
 jobs:
-  build:
-    runs-on: ubuntu-22.04
+  release:
+    name: GitHub Pages
+    runs-on: ubuntu-latest
+    env:
+      MLIR_SYS_150_PREFIX: /usr/lib/llvm-15
     steps:
-      - uses: actions/checkout@v3
-      - uses: raviqqe/enable-homebrew@main
-      - run: tools/setup.sh
-      - run: cargo doc
-      - uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main'
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: add llvm deb repository
+        uses: myci-actions/add-deb-repo@10
+        with:
+          repo: deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-15 main
+          repo-name: llvm-repo
+          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      - name: Install LLVM
+        run: sudo apt-get install libllvm-15-ocaml-dev libllvm15 llvm-15 llvm-15-dev llvm-15-doc llvm-15-examples llvm-15-runtime clang-15 clang-tools-15 clang-15-doc libclang-common-15-dev libclang-15-dev libclang1-15 lld-15 libpolly-15-dev libclang-rt-15-dev libc++-15-dev libc++abi-15-dev libmlir-15-dev mlir-15-tools
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          components: rustfmt, rust-src
+          
+      - name: Build Documentation
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --all --no-deps
+
+      - name: Prepare index
+        run: |
+          echo '<meta http-equiv="refresh" content="0; url=melior-next/index.html" />' > target/doc/index.html
+
+      - name: Deploy Documentation
+        uses: peaceiris/actions-gh-pages@v3.9.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/doc
+          publish_branch: gh-pages
+          publish_dir: ./target/doc
+          keep_files: true

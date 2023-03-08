@@ -1,11 +1,11 @@
 [package]
-name = "melior"
-description = "The rustic MLIR bindings in Rust"
-version = "0.3.1"
+name = "melior-next"
+description = "The rustic MLIR bindings in Rust. Continued."
+version = "0.4.0"
 edition = "2021"
 license = "Apache-2.0"
-repository = "https://github.com/raviqqe/melior"
-documentation = "https://raviqqe.github.io/melior/melior/"
+repository = "https://github.com/edg-l/melior-next"
+documentation = "https://edg-l.github.io/melior-next/melior-next/"
 
 [dependencies]
 mlir-sys = "0.1"

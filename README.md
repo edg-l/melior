@@ -1,15 +1,15 @@
 # Melior
 
-[![GitHub Action](https://img.shields.io/github/actions/workflow/status/raviqqe/melior/test.yaml?branch=main&style=flat-square)](https://github.com/raviqqe/melior/actions?query=workflow%3Atest)
-[![Crate](https://img.shields.io/crates/v/melior.svg?style=flat-square)](https://crates.io/crates/melior)
-[![License](https://img.shields.io/github/license/raviqqe/melior.svg?style=flat-square)](LICENSE)
+[![GitHub Action](https://img.shields.io/github/actions/workflow/status/edg-l/melior-next/test.yaml?branch=main&style=flat-square)](https://github.com/edg-l/melior-next/actions?query=workflow%3Atest)
+[![Crate](https://img.shields.io/crates/v/melior-next.svg?style=flat-square)](https://crates.io/crates/melior)
+[![License](https://img.shields.io/github/license/edg-l/melior-next.svg?style=flat-square)](LICENSE)
 
-The rustic MLIR bindings for Rust
+The rustic MLIR bindings for Rust. Continued
 
 This crate is a wrapper of [the MLIR C API](https://mlir.llvm.org/docs/CAPI/).
 
 ```rust
-use melior::{
+use melior_next::{
     Context,
     dialect,
     ir::*,
@@ -74,7 +74,7 @@ Melior aims to provide a simple, safe, and complete API for MLIR with a reasonab
 ## Install
 
 ```sh
-cargo add melior
+cargo add melior-next
 ```
 
 ### Dependencies
@@ -115,3 +115,5 @@ Contribution is welcome! But, Melior is still in the alpha stage as well as the 
 ## License
 
 [Apache 2.0](LICENSE)
+
+This is a fork of <https://github.com/raviqqe/melior>
