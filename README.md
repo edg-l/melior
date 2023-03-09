@@ -149,7 +149,6 @@ Contribution is welcome! But, Melior is still in the alpha stage as well as the 
 
 ## References
 
-- The raw C binding generation depends on [femtomc/mlir-sys](https://github.com/femtomc/mlir-sys).
 - The overall design is inspired by [TheDan64/inkwell](https://github.com/TheDan64/inkwell).
 
 ## License
