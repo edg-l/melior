@@ -1,4 +1,4 @@
-//! Melior is the rustic MLIR bindings for Rust. It aims to provide a simple,
+//! Melior-next is the rustic MLIR bindings for Rust. It aims to provide a simple,
 //! safe, and complete API for MLIR with a reasonably sane ownership model
 //! represented by the type system in Rust.
 //!
@@ -6,11 +6,7 @@
 //!
 //! # Dependencies
 //!
-//! [LLVM/MLIR 15](https://llvm.org/) needs to be installed on your system. On Linux and macOS, you can install it via [Homebrew](https://brew.sh).
-//!
-//! ```sh
-//! brew install llvm@15
-//! ```
+//! [LLVM/MLIR 16](https://llvm.org/) needs to be installed on your system.
 //!
 //! # Safety
 //!
@@ -31,14 +27,16 @@
 //!
 //! # Examples
 //!
-//! ## Building a function to add integers
+//! ## Building a function to add integers and executing it using the JIT engine.
 //!
 //! ```rust
 //! use melior_next::{
 //!     Context,
 //!     dialect,
 //!     ir::*,
-//!     utility::register_all_dialects,
+//!     pass,
+//!     utility::*,
+//!     ExecutionEngine
 //! };
 //!
 //! let registry = dialect::Registry::new();
@@ -47,9 +45,10 @@
 //! let context = Context::new();
 //! context.append_dialect_registry(&registry);
 //! context.get_or_load_dialect("func");
+//! register_all_llvm_translations(&context);
 //!
 //! let location = Location::unknown(&context);
-//! let module = Module::new(location);
+//! let mut module = Module::new(location);
 //!
 //! let integer_type = Type::integer(&context, 64);
 //!
@@ -59,10 +58,7 @@
 //!
 //!     let sum = block.append_operation(
 //!         operation::Builder::new("arith.addi", location)
-//!             .add_operands(&[
-//!                 block.argument(0).unwrap().into(),
-//!                 block.argument(1).unwrap().into(),
-//!             ])
+//!             .add_operands(&[block.argument(0).unwrap().into(), block.argument(1).unwrap().into()])
 //!             .add_results(&[integer_type])
 //!             .build(),
 //!     );
@@ -85,6 +81,10 @@
 //!                 Identifier::new(&context, "sym_name"),
 //!                 Attribute::parse(&context, "\"add\"").unwrap(),
 //!             ),
+//!             (
+//!                 Identifier::new(&context, "llvm.emit_c_interface"),
+//!                 Attribute::parse(&context, r#"unit"#).unwrap(),
+//!             ),
 //!         ])
 //!         .add_regions(vec![region])
 //!         .build()
@@ -93,6 +93,35 @@
 //! module.body().append_operation(function);
 //!
 //! assert!(module.as_operation().verify());
+//!
+//! let pass_manager = pass::Manager::new(&context);
+//! register_all_passes();
+//! pass_manager.add_pass(pass::conversion::convert_scf_to_cf());
+//! pass_manager.add_pass(pass::conversion::convert_cf_to_llvm());
+//! pass_manager.add_pass(pass::conversion::convert_func_to_llvm());
+//! pass_manager.add_pass(pass::conversion::convert_arithmetic_to_llvm());
+//! pass_manager.enable_verifier(true);
+//! pass_manager.run(&mut module).unwrap();
+//!
+//! let engine = ExecutionEngine::new(&module, 2, &[], false);
+//!
+//! let mut argument1: i64 = 2;
+//! let mut argument2: i64 = 4;
+//! let mut result: i64 = -1;
+//!
+//! unsafe {
+//!     engine
+//!         .invoke_packed(
+//!                 "add",
+//!                 &mut [
+//!                     &mut argument1 as *mut i64 as *mut (),
+//!                     &mut argument2 as *mut i64 as *mut (),
+//!                     &mut result as *mut i64 as *mut ()
+//!                 ])
+//!         .unwrap();
+//! };
+//!
+//! assert_eq!(result, 6);
 //! ```
 
 mod context;
