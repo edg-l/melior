@@ -23,6 +23,8 @@
 <a href="#23" id="23">23</a>
 <a href="#24" id="24">24</a>
 <a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
 </pre><pre class="rust"><code><span class="doccomment">//! IR objects and builders.
 
 </span><span class="kw">mod </span>affine_map;
@@ -31,6 +33,7 @@
 <span class="kw">mod </span>identifier;
 <span class="kw">mod </span>location;
 <span class="kw">mod </span>module;
+<span class="kw">pub mod </span>named_attribute;
 <span class="kw">pub mod </span>operation;
 <span class="kw">mod </span>region;
 <span class="kw">pub mod </span>r#type;
@@ -43,6 +46,7 @@
     identifier::Identifier,
     location::Location,
     module::Module,
+    named_attribute::NamedAttribute,
     operation::{Operation, OperationRef},
     r#type::{Type, TypeLike},
     region::{Region, RegionRef},

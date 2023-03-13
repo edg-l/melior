@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["NamedAttribute","Helper type. A named attribute, needed on all operations that use attributes."]]};
