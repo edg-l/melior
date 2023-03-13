@@ -83,7 +83,7 @@ mod tests {
     use super::*;
     use crate::{
         context::Context,
-        dialect,
+        dialect::{self, Registry},
         ir::{operation, Attribute, Block, Identifier, Location},
         utility::register_all_dialects,
     };
@@ -91,6 +91,7 @@ mod tests {
     #[test]
     fn r#type() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
         let location = Location::unknown(&context);
         let index_type = Type::parse(&context, "index").unwrap();
 
@@ -108,6 +109,7 @@ mod tests {
     #[test]
     fn is_operation_result() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
         let location = Location::unknown(&context);
         let r#type = Type::parse(&context, "index").unwrap();
 
@@ -125,6 +127,7 @@ mod tests {
     #[test]
     fn is_block_argument() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
         let r#type = Type::parse(&context, "index").unwrap();
         let block = Block::new(&[(r#type, Location::unknown(&context))]);
 
@@ -134,6 +137,7 @@ mod tests {
     #[test]
     fn dump() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
         let location = Location::unknown(&context);
         let index_type = Type::parse(&context, "index").unwrap();
 
@@ -151,6 +155,10 @@ mod tests {
     #[test]
     fn equal() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
+        context.load_all_available_dialects();
         let location = Location::unknown(&context);
         let index_type = Type::parse(&context, "index").unwrap();
 
@@ -169,6 +177,10 @@ mod tests {
     #[test]
     fn not_equal() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
+        context.load_all_available_dialects();
         let location = Location::unknown(&context);
         let index_type = Type::parse(&context, "index").unwrap();
 
@@ -191,6 +203,9 @@ mod tests {
     #[test]
     fn display() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
         context.load_all_available_dialects();
         let location = Location::unknown(&context);
         let index_type = Type::parse(&context, "index").unwrap();
@@ -205,7 +220,7 @@ mod tests {
 
         assert_eq!(
             operation.result(0).unwrap().to_string(),
-            "%0 = \"arith.constant\"() {value = 0 : index} : () -> index\n"
+            "%c0 = arith.constant 0 : index\n"
         );
     }
 
@@ -238,6 +253,9 @@ mod tests {
     #[test]
     fn debug() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
         context.load_all_available_dialects();
         let location = Location::unknown(&context);
         let index_type = Type::parse(&context, "index").unwrap();
@@ -252,7 +270,7 @@ mod tests {
 
         assert_eq!(
             format!("{:?}", Value::from(operation.result(0).unwrap())),
-            "Value(\n%0 = \"arith.constant\"() {value = 0 : index} : () -> index\n)"
+            "Value(\n%c0 = arith.constant 0 : index\n)"
         );
     }
 }

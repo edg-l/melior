@@ -62,6 +62,7 @@ mod tests {
     #[test]
     fn result_number() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
         let r#type = Type::parse(&context, "index").unwrap();
         let operation = operation::Builder::new("foo", Location::unknown(&context))
             .add_results(&[r#type])
@@ -73,6 +74,7 @@ mod tests {
     #[test]
     fn owner() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
         let r#type = Type::parse(&context, "index").unwrap();
         let block = Block::new(&[(r#type, Location::unknown(&context))]);
 

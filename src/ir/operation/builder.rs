@@ -130,12 +130,15 @@ mod tests {
 
     #[test]
     fn new() {
-        Builder::new("foo", Location::unknown(&Context::new())).build();
+        let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
+        Builder::new("foo", Location::unknown(&context)).build();
     }
 
     #[test]
     fn add_results() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
 
         Builder::new("foo", Location::unknown(&context))
             .add_results(&[Type::parse(&context, "i1").unwrap()])
@@ -145,6 +148,7 @@ mod tests {
     #[test]
     fn add_regions() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
 
         Builder::new("foo", Location::unknown(&context))
             .add_regions(vec![Region::new()])
@@ -154,6 +158,7 @@ mod tests {
     #[test]
     fn add_successors() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
 
         Builder::new("foo", Location::unknown(&context))
             .add_successors(&[&Block::new(&[])])
@@ -163,6 +168,7 @@ mod tests {
     #[test]
     fn add_attributes() {
         let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
 
         Builder::new("foo", Location::unknown(&context))
             .add_attributes(&[(

@@ -293,8 +293,8 @@ impl<'a> Debug for BlockRef<'a> {
 mod tests {
     use super::*;
     use crate::{
-        dialect,
-        ir::{operation, Module, Region, ValueLike},
+        dialect::{self, Registry},
+        ir::{operation, Attribute, Identifier, Module, Region, ValueLike},
         utility::register_all_dialects,
     };
     use pretty_assertions::assert_eq;
@@ -390,12 +390,23 @@ mod tests {
     #[test]
     fn first_operation() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
+        context.get_or_load_dialect("arith");
         let block = Block::new(&[]);
 
-        let operation = block
-            .append_operation(operation::Builder::new("foo", Location::unknown(&context)).build());
+        let op = block.append_operation(
+            operation::Builder::new("arith.constant", Location::unknown(&context))
+                .add_results(&[Type::integer(&context, 32)])
+                .add_attributes(&[(
+                    Identifier::new(&context, "value"),
+                    Attribute::parse(&context, "0 : i32").unwrap(),
+                )])
+                .build(),
+        );
 
-        assert_eq!(block.first_operation(), Some(operation));
+        assert_eq!(block.first_operation(), Some(op));
     }
 
     #[test]
@@ -408,32 +419,71 @@ mod tests {
     #[test]
     fn append_operation() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
+        context.get_or_load_dialect("arith");
         let block = Block::new(&[]);
 
-        block.append_operation(operation::Builder::new("foo", Location::unknown(&context)).build());
+        block.append_operation(
+            operation::Builder::new("arith.constant", Location::unknown(&context))
+                .add_results(&[Type::integer(&context, 32)])
+                .add_attributes(&[(
+                    Identifier::new(&context, "value"),
+                    Attribute::parse(&context, "0 : i32").unwrap(),
+                )])
+                .build(),
+        );
     }
 
     #[test]
     fn insert_operation() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
+        context.get_or_load_dialect("arith");
         let block = Block::new(&[]);
 
         block.insert_operation(
             0,
-            operation::Builder::new("foo", Location::unknown(&context)).build(),
+            operation::Builder::new("arith.constant", Location::unknown(&context))
+                .add_results(&[Type::integer(&context, 32)])
+                .add_attributes(&[(
+                    Identifier::new(&context, "value"),
+                    Attribute::parse(&context, "0 : i32").unwrap(),
+                )])
+                .build(),
         );
     }
 
     #[test]
     fn insert_operation_after() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
+        context.get_or_load_dialect("arith");
         let block = Block::new(&[]);
 
-        let first_operation = block
-            .append_operation(operation::Builder::new("foo", Location::unknown(&context)).build());
+        let first_operation = block.append_operation(
+            operation::Builder::new("arith.constant", Location::unknown(&context))
+                .add_results(&[Type::integer(&context, 32)])
+                .add_attributes(&[(
+                    Identifier::new(&context, "value"),
+                    Attribute::parse(&context, "0 : i32").unwrap(),
+                )])
+                .build(),
+        );
         let second_operation = block.insert_operation_after(
             first_operation,
-            operation::Builder::new("foo", Location::unknown(&context)).build(),
+            operation::Builder::new("arith.constant", Location::unknown(&context))
+                .add_results(&[Type::integer(&context, 32)])
+                .add_attributes(&[(
+                    Identifier::new(&context, "value"),
+                    Attribute::parse(&context, "0 : i32").unwrap(),
+                )])
+                .build(),
         );
 
         assert_eq!(block.first_operation(), Some(first_operation));
@@ -446,13 +496,30 @@ mod tests {
     #[test]
     fn insert_operation_before() {
         let context = Context::new();
+        let registry = Registry::new();
+        register_all_dialects(&registry);
+        context.append_dialect_registry(&registry);
+        context.get_or_load_dialect("arith");
         let block = Block::new(&[]);
 
-        let second_operation = block
-            .append_operation(operation::Builder::new("foo", Location::unknown(&context)).build());
+        let second_operation = block.append_operation(
+            operation::Builder::new("arith.constant", Location::unknown(&context))
+                .add_results(&[Type::integer(&context, 32)])
+                .add_attributes(&[(
+                    Identifier::new(&context, "value"),
+                    Attribute::parse(&context, "0 : i32").unwrap(),
+                )])
+                .build(),
+        );
         let first_operation = block.insert_operation_before(
             second_operation,
-            operation::Builder::new("foo", Location::unknown(&context)).build(),
+            operation::Builder::new("arith.constant", Location::unknown(&context))
+                .add_results(&[Type::integer(&context, 32)])
+                .add_attributes(&[(
+                    Identifier::new(&context, "value"),
+                    Attribute::parse(&context, "0 : i32").unwrap(),
+                )])
+                .build(),
         );
 
         assert_eq!(block.first_operation(), Some(first_operation));
