@@ -79,6 +79,8 @@
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Value;
 <span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{mlirOpResultGetOwner, mlirOpResultGetResultNumber, MlirValue};
 <span class="kw">use crate</span>::{
@@ -143,6 +145,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>result_number() {
         <span class="kw">let </span>context = Context::new();
+        context.set_allow_unregistered_dialects(<span class="bool-val">true</span>);
         <span class="kw">let </span>r#type = Type::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;index&quot;</span>).unwrap();
         <span class="kw">let </span>operation = operation::Builder::new(<span class="string">&quot;foo&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
             .add_results(<span class="kw-2">&amp;</span>[r#type])
@@ -154,6 +157,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>owner() {
         <span class="kw">let </span>context = Context::new();
+        context.set_allow_unregistered_dialects(<span class="bool-val">true</span>);
         <span class="kw">let </span>r#type = Type::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;index&quot;</span>).unwrap();
         <span class="kw">let </span>block = Block::new(<span class="kw-2">&amp;</span>[(r#type, Location::unknown(<span class="kw-2">&amp;</span>context))]);
 
