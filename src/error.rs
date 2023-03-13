@@ -19,6 +19,7 @@ pub enum Error {
     RunPass,
     TupleExpected(String),
     TupleFieldPosition(String, usize),
+    NamedAttributeParse(String),
 }
 
 impl Display for Error {
@@ -63,6 +64,9 @@ impl Display for Error {
                     formatter,
                     "tuple field position {position} out of range: {type}"
                 )
+            }
+            Self::NamedAttributeParse(attribute) => {
+                write!(formatter, "error parsing attribute: {attribute}")
             }
         }
     }
