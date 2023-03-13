@@ -6,6 +6,7 @@ pub mod block;
 mod identifier;
 mod location;
 mod module;
+pub mod named_attribute;
 pub mod operation;
 mod region;
 pub mod r#type;
@@ -18,6 +19,7 @@ pub use self::{
     identifier::Identifier,
     location::Location,
     module::Module,
+    named_attribute::NamedAttribute,
     operation::{Operation, OperationRef},
     r#type::{Type, TypeLike},
     region::{Region, RegionRef},
