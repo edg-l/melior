@@ -58,6 +58,7 @@ impl<'a> PartialEq for StringRef<'a> {
 
 impl<'a> Eq for StringRef<'a> {}
 
+#[allow(clippy::fallible_impl_from)] // TODO: rework this
 impl From<&str> for StringRef<'static> {
     fn from(string: &str) -> Self {
         if !STRING_CACHE.read().unwrap().contains_key(string) {

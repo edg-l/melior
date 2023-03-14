@@ -18,7 +18,17 @@ impl<'c> NamedAttribute<'c> {
         })
     }
 
-    pub fn new(identifier: Identifier<'c>, attribute: Attribute<'c>) -> Result<Self, Error> {
+    pub fn new_parsed_vec(
+        context: &'c Context,
+        ident_attr_pairs: &[(&str, &str)],
+    ) -> Result<Vec<Self>, Error> {
+        ident_attr_pairs
+            .iter()
+            .map(|x| NamedAttribute::new_parsed(context, x.0, x.1))
+            .collect()
+    }
+
+    pub const fn new(identifier: Identifier<'c>, attribute: Attribute<'c>) -> Result<Self, Error> {
         Ok(Self {
             identifier,
             attribute,

@@ -84,7 +84,7 @@ mod tests {
     use crate::{
         context::Context,
         dialect::{self, Registry},
-        ir::{operation, Attribute, Block, Identifier, Location},
+        ir::{operation, Block, Location, NamedAttribute},
         utility::register_all_dialects,
     };
 
@@ -97,10 +97,7 @@ mod tests {
 
         let operation = operation::Builder::new("arith.constant", location)
             .add_results(&[index_type])
-            .add_attributes(&[(
-                Identifier::new(&context, "value"),
-                Attribute::parse(&context, "0 : index").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()])
             .build();
 
         assert_eq!(operation.result(0).unwrap().r#type(), index_type);
@@ -115,10 +112,7 @@ mod tests {
 
         let operation = operation::Builder::new("arith.constant", location)
             .add_results(&[r#type])
-            .add_attributes(&[(
-                Identifier::new(&context, "value"),
-                Attribute::parse(&context, "0 : index").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()])
             .build();
 
         assert!(operation.result(0).unwrap().is_operation_result());
@@ -143,10 +137,7 @@ mod tests {
 
         let value = operation::Builder::new("arith.constant", location)
             .add_results(&[index_type])
-            .add_attributes(&[(
-                Identifier::new(&context, "value"),
-                Attribute::parse(&context, "0 : index").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()])
             .build();
 
         value.result(0).unwrap().dump();
@@ -164,10 +155,7 @@ mod tests {
 
         let operation = operation::Builder::new("arith.constant", location)
             .add_results(&[index_type])
-            .add_attributes(&[(
-                Identifier::new(&context, "value"),
-                Attribute::parse(&context, "0 : index").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()])
             .build();
         let result = Value::from(operation.result(0).unwrap());
 
@@ -187,10 +175,9 @@ mod tests {
         let operation = || {
             operation::Builder::new("arith.constant", location)
                 .add_results(&[index_type])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : index").unwrap(),
-                )])
+                .add_attributes(&[
+                    NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()
+                ])
                 .build()
         };
 
@@ -212,10 +199,7 @@ mod tests {
 
         let operation = operation::Builder::new("arith.constant", location)
             .add_results(&[index_type])
-            .add_attributes(&[(
-                Identifier::new(&context, "value"),
-                Attribute::parse(&context, "0 : index").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()])
             .build();
 
         assert_eq!(
@@ -238,10 +222,7 @@ mod tests {
 
         let operation = operation::Builder::new("arith.constant", location)
             .add_results(&[index_type])
-            .add_attributes(&[(
-                Identifier::new(&context, "value"),
-                Attribute::parse(&context, "0 : index").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()])
             .build();
 
         assert_eq!(
@@ -262,10 +243,7 @@ mod tests {
 
         let operation = operation::Builder::new("arith.constant", location)
             .add_results(&[index_type])
-            .add_attributes(&[(
-                Identifier::new(&context, "value"),
-                Attribute::parse(&context, "0 : index").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "value", "0 : index").unwrap()])
             .build();
 
         assert_eq!(

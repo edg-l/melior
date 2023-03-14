@@ -72,20 +72,13 @@
 //!     region.append_block(block);
 //!
 //!     operation::Builder::new("func.func", Location::unknown(&context))
-//!         .add_attributes(&[
-//!             (
-//!                 Identifier::new(&context, "function_type"),
-//!                 Attribute::parse(&context, "(i64, i64) -> i64").unwrap(),
-//!             ),
-//!             (
-//!                 Identifier::new(&context, "sym_name"),
-//!                 Attribute::parse(&context, "\"add\"").unwrap(),
-//!             ),
-//!             (
-//!                 Identifier::new(&context, "llvm.emit_c_interface"),
-//!                 Attribute::parse(&context, r#"unit"#).unwrap(),
-//!             ),
-//!         ])
+//!         .add_attributes(
+//!             &NamedAttribute::new_parsed_vec(&context, &[
+//!                 ("function_type", "(i64, i64) -> i64"),
+//!                 ("sym_name", "\"add\""),
+//!                 ("llvm.emit_c_interface", "unit"),
+//!             ]).unwrap()
+//!         )
 //!         .add_regions(vec![region])
 //!         .build()
 //! };
@@ -124,6 +117,10 @@
 //! assert_eq!(result, 6);
 //! ```
 
+#![deny(clippy::nursery)]
+//#![deny(clippy::pedantic)]
+#![deny(clippy::all)]
+
 mod context;
 pub mod dialect;
 mod error;
@@ -147,7 +144,7 @@ mod tests {
     use crate::{
         context::Context,
         dialect,
-        ir::{operation, Attribute, Block, Identifier, Location, Module, Region, Type},
+        ir::{operation, Block, Location, Module, NamedAttribute, Region, Type},
         utility::register_all_dialects,
     };
 
@@ -208,16 +205,16 @@ mod tests {
             region.append_block(block);
 
             operation::Builder::new("func.func", Location::unknown(&context))
-                .add_attributes(&[
-                    (
-                        Identifier::new(&context, "function_type"),
-                        Attribute::parse(&context, "(i64, i64) -> i64").unwrap(),
-                    ),
-                    (
-                        Identifier::new(&context, "sym_name"),
-                        Attribute::parse(&context, "\"add\"").unwrap(),
-                    ),
-                ])
+                .add_attributes(
+                    &NamedAttribute::new_parsed_vec(
+                        &context,
+                        &[
+                            ("function_type", "(i64, i64) -> i64"),
+                            ("sym_name", "\"add\""),
+                        ],
+                    )
+                    .unwrap(),
+                )
                 .add_regions(vec![region])
                 .build()
         };
@@ -252,13 +249,12 @@ mod tests {
             let zero = function_block.append_operation(
                 operation::Builder::new("arith.constant", location)
                     .add_results(&[index_type])
-                    .add_attributes(&[(
-                        Identifier::new(&context, "value"),
-                        Attribute::parse(&context, "0 : index").unwrap(),
-                    )])
+                    .add_attributes(
+                        &NamedAttribute::new_parsed_vec(&context, &[("value", "0 : index")])
+                            .unwrap(),
+                    )
                     .build(),
             );
-
             let dim = function_block.append_operation(
                 operation::Builder::new("memref.dim", location)
                     .add_operands(&[
@@ -275,10 +271,9 @@ mod tests {
             let one = function_block.append_operation(
                 operation::Builder::new("arith.constant", location)
                     .add_results(&[index_type])
-                    .add_attributes(&[(
-                        Identifier::new(&context, "value"),
-                        Attribute::parse(&context, "1 : index").unwrap(),
-                    )])
+                    .add_attributes(&[
+                        NamedAttribute::new_parsed(&context, "value", "1 : index").unwrap()
+                    ])
                     .build(),
             );
 
@@ -352,16 +347,16 @@ mod tests {
             function_region.append_block(function_block);
 
             operation::Builder::new("func.func", Location::unknown(&context))
-                .add_attributes(&[
-                    (
-                        Identifier::new(&context, "function_type"),
-                        Attribute::parse(&context, "(memref<?xf32>, memref<?xf32>) -> ()").unwrap(),
-                    ),
-                    (
-                        Identifier::new(&context, "sym_name"),
-                        Attribute::parse(&context, "\"sum\"").unwrap(),
-                    ),
-                ])
+                .add_attributes(
+                    &NamedAttribute::new_parsed_vec(
+                        &context,
+                        &[
+                            ("function_type", "(memref<?xf32>, memref<?xf32>) -> ()"),
+                            ("sym_name", "\"sum\""),
+                        ],
+                    )
+                    .unwrap(),
+                )
                 .add_regions(vec![function_region])
                 .build()
         };

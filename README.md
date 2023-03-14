@@ -55,20 +55,13 @@ let function = {
     region.append_block(block);
 
     operation::Builder::new("func.func", Location::unknown(&context))
-        .add_attributes(&[
-            (
-                Identifier::new(&context, "function_type"),
-                Attribute::parse(&context, "(i64, i64) -> i64").unwrap(),
-            ),
-            (
-                Identifier::new(&context, "sym_name"),
-                Attribute::parse(&context, "\"add\"").unwrap(),
-            ),
-            (
-                Identifier::new(&context, "llvm.emit_c_interface"),
-                Attribute::parse(&context, r#"unit"#).unwrap(),
-            ),
-        ])
+        .add_attributes(
+             &NamedAttribute::new_parsed_vec(&context, &[
+                 ("function_type", "(i64, i64) -> i64"),
+                 ("sym_name", "\"add\""),
+                 ("llvm.emit_c_interface", "unit"),
+             ]).unwrap()
+         )
         .add_regions(vec![region])
         .build()
 };

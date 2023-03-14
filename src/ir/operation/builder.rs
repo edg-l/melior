@@ -1,3 +1,4 @@
+use crate::ir::NamedAttribute;
 use crate::mlir_sys::{
     mlirNamedAttributeGet, mlirOperationCreate, mlirOperationStateAddAttributes,
     mlirOperationStateAddOperands, mlirOperationStateAddOwnedRegions, mlirOperationStateAddResults,
@@ -6,7 +7,7 @@ use crate::mlir_sys::{
 };
 use crate::{
     context::Context,
-    ir::{Attribute, Block, Identifier, Location, Region, Type, TypeLike, Value, ValueLike},
+    ir::{Block, Location, Region, Type, TypeLike, Value, ValueLike},
     string_ref::StringRef,
     utility::into_raw_array,
 };
@@ -91,7 +92,7 @@ impl<'c> Builder<'c> {
     }
 
     /// Adds attributes.
-    pub fn add_attributes(mut self, attributes: &[(Identifier, Attribute<'c>)]) -> Self {
+    pub fn add_attributes(mut self, attributes: &[NamedAttribute<'c>]) -> Self {
         unsafe {
             mlirOperationStateAddAttributes(
                 &mut self.raw,
@@ -99,9 +100,7 @@ impl<'c> Builder<'c> {
                 into_raw_array(
                     attributes
                         .iter()
-                        .map(|(identifier, attribute)| {
-                            mlirNamedAttributeGet(identifier.to_raw(), attribute.to_raw())
-                        })
+                        .map(|n| mlirNamedAttributeGet(n.identifier.to_raw(), n.attribute.to_raw()))
                         .collect(),
                 ),
             )
@@ -171,10 +170,7 @@ mod tests {
         context.set_allow_unregistered_dialects(true);
 
         Builder::new("foo", Location::unknown(&context))
-            .add_attributes(&[(
-                Identifier::new(&context, "foo"),
-                Attribute::parse(&context, "unit").unwrap(),
-            )])
+            .add_attributes(&[NamedAttribute::new_parsed(&context, "foo", "unit").unwrap()])
             .build();
     }
 

@@ -294,7 +294,7 @@ mod tests {
     use super::*;
     use crate::{
         dialect::{self, Registry},
-        ir::{operation, Attribute, Identifier, Module, Region, ValueLike},
+        ir::{operation, Module, NamedAttribute, Region, ValueLike},
         utility::register_all_dialects,
     };
     use pretty_assertions::assert_eq;
@@ -399,10 +399,9 @@ mod tests {
         let op = block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
                 .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : i32").unwrap(),
-                )])
+                .add_attributes(
+                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
+                )
                 .build(),
         );
 
@@ -428,10 +427,9 @@ mod tests {
         block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
                 .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : i32").unwrap(),
-                )])
+                .add_attributes(
+                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
+                )
                 .build(),
         );
     }
@@ -449,10 +447,9 @@ mod tests {
             0,
             operation::Builder::new("arith.constant", Location::unknown(&context))
                 .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : i32").unwrap(),
-                )])
+                .add_attributes(
+                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
+                )
                 .build(),
         );
     }
@@ -469,20 +466,18 @@ mod tests {
         let first_operation = block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
                 .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : i32").unwrap(),
-                )])
+                .add_attributes(
+                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
+                )
                 .build(),
         );
         let second_operation = block.insert_operation_after(
             first_operation,
             operation::Builder::new("arith.constant", Location::unknown(&context))
                 .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : i32").unwrap(),
-                )])
+                .add_attributes(
+                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
+                )
                 .build(),
         );
 
@@ -505,20 +500,18 @@ mod tests {
         let second_operation = block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
                 .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : i32").unwrap(),
-                )])
+                .add_attributes(
+                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
+                )
                 .build(),
         );
         let first_operation = block.insert_operation_before(
             second_operation,
             operation::Builder::new("arith.constant", Location::unknown(&context))
                 .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(&[(
-                    Identifier::new(&context, "value"),
-                    Attribute::parse(&context, "0 : i32").unwrap(),
-                )])
+                .add_attributes(
+                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
+                )
                 .build(),
         );
 
