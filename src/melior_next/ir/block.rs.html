@@ -563,13 +563,6 @@
 <a href="#563" id="563">563</a>
 <a href="#564" id="564">564</a>
 <a href="#565" id="565">565</a>
-<a href="#566" id="566">566</a>
-<a href="#567" id="567">567</a>
-<a href="#568" id="568">568</a>
-<a href="#569" id="569">569</a>
-<a href="#570" id="570">570</a>
-<a href="#571" id="571">571</a>
-<a href="#572" id="572">572</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Blocks.
 
 </span><span class="kw">mod </span>argument;
@@ -866,7 +859,7 @@
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use crate</span>::{
         dialect::{<span class="self">self</span>, Registry},
-        ir::{operation, Attribute, Identifier, Module, Region, ValueLike},
+        ir::{operation, Module, NamedAttribute, Region, ValueLike},
         utility::register_all_dialects,
     };
     <span class="kw">use </span>pretty_assertions::assert_eq;
@@ -971,10 +964,9 @@
         <span class="kw">let </span>op = block.append_operation(
             operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
                 .add_results(<span class="kw-2">&amp;</span>[Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)])
-                .add_attributes(<span class="kw-2">&amp;</span>[(
-                    Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                    Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : i32&quot;</span>).unwrap(),
-                )])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>[NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : i32&quot;</span>).unwrap()],
+                )
                 .build(),
         );
 
@@ -1000,10 +992,9 @@
         block.append_operation(
             operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
                 .add_results(<span class="kw-2">&amp;</span>[Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)])
-                .add_attributes(<span class="kw-2">&amp;</span>[(
-                    Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                    Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : i32&quot;</span>).unwrap(),
-                )])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>[NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : i32&quot;</span>).unwrap()],
+                )
                 .build(),
         );
     }
@@ -1021,10 +1012,9 @@
             <span class="number">0</span>,
             operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
                 .add_results(<span class="kw-2">&amp;</span>[Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)])
-                .add_attributes(<span class="kw-2">&amp;</span>[(
-                    Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                    Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : i32&quot;</span>).unwrap(),
-                )])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>[NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : i32&quot;</span>).unwrap()],
+                )
                 .build(),
         );
     }
@@ -1041,20 +1031,18 @@
         <span class="kw">let </span>first_operation = block.append_operation(
             operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
                 .add_results(<span class="kw-2">&amp;</span>[Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)])
-                .add_attributes(<span class="kw-2">&amp;</span>[(
-                    Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                    Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : i32&quot;</span>).unwrap(),
-                )])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>[NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : i32&quot;</span>).unwrap()],
+                )
                 .build(),
         );
         <span class="kw">let </span>second_operation = block.insert_operation_after(
             first_operation,
             operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
                 .add_results(<span class="kw-2">&amp;</span>[Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)])
-                .add_attributes(<span class="kw-2">&amp;</span>[(
-                    Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                    Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : i32&quot;</span>).unwrap(),
-                )])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>[NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : i32&quot;</span>).unwrap()],
+                )
                 .build(),
         );
 
@@ -1077,20 +1065,18 @@
         <span class="kw">let </span>second_operation = block.append_operation(
             operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
                 .add_results(<span class="kw-2">&amp;</span>[Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)])
-                .add_attributes(<span class="kw-2">&amp;</span>[(
-                    Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                    Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : i32&quot;</span>).unwrap(),
-                )])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>[NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : i32&quot;</span>).unwrap()],
+                )
                 .build(),
         );
         <span class="kw">let </span>first_operation = block.insert_operation_before(
             second_operation,
             operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
                 .add_results(<span class="kw-2">&amp;</span>[Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)])
-                .add_attributes(<span class="kw-2">&amp;</span>[(
-                    Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                    Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : i32&quot;</span>).unwrap(),
-                )])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>[NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : i32&quot;</span>).unwrap()],
+                )
                 .build(),
         );
 

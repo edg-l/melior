@@ -367,11 +367,6 @@
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Melior-next is the rustic MLIR bindings for Rust. It aims to provide a simple,
 //! safe, and complete API for MLIR with a reasonably sane ownership model
 //! represented by the type system in Rust.
@@ -446,20 +441,13 @@
 //!     region.append_block(block);
 //!
 //!     operation::Builder::new(&quot;func.func&quot;, Location::unknown(&amp;context))
-//!         .add_attributes(&amp;[
-//!             (
-//!                 Identifier::new(&amp;context, &quot;function_type&quot;),
-//!                 Attribute::parse(&amp;context, &quot;(i64, i64) -&gt; i64&quot;).unwrap(),
-//!             ),
-//!             (
-//!                 Identifier::new(&amp;context, &quot;sym_name&quot;),
-//!                 Attribute::parse(&amp;context, &quot;\&quot;add\&quot;&quot;).unwrap(),
-//!             ),
-//!             (
-//!                 Identifier::new(&amp;context, &quot;llvm.emit_c_interface&quot;),
-//!                 Attribute::parse(&amp;context, r#&quot;unit&quot;#).unwrap(),
-//!             ),
-//!         ])
+//!         .add_attributes(
+//!             &amp;NamedAttribute::new_parsed_vec(&amp;context, &amp;[
+//!                 (&quot;function_type&quot;, &quot;(i64, i64) -&gt; i64&quot;),
+//!                 (&quot;sym_name&quot;, &quot;\&quot;add\&quot;&quot;),
+//!                 (&quot;llvm.emit_c_interface&quot;, &quot;unit&quot;),
+//!             ]).unwrap()
+//!         )
 //!         .add_regions(vec![region])
 //!         .build()
 //! };
@@ -498,6 +486,10 @@
 //! assert_eq!(result, 6);
 //! ```
 
+</span><span class="attr">#![deny(clippy::nursery)]
+</span><span class="comment">//#![deny(clippy::pedantic)]
+</span><span class="attr">#![deny(clippy::all)]
+
 </span><span class="kw">mod </span>context;
 <span class="kw">pub mod </span>dialect;
 <span class="kw">mod </span>error;
@@ -521,7 +513,7 @@
     <span class="kw">use crate</span>::{
         context::Context,
         dialect,
-        ir::{operation, Attribute, Block, Identifier, Location, Module, Region, Type},
+        ir::{operation, Block, Location, Module, NamedAttribute, Region, Type},
         utility::register_all_dialects,
     };
 
@@ -582,16 +574,16 @@
             region.append_block(block);
 
             operation::Builder::new(<span class="string">&quot;func.func&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
-                .add_attributes(<span class="kw-2">&amp;</span>[
-                    (
-                        Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;function_type&quot;</span>),
-                        Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;(i64, i64) -&gt; i64&quot;</span>).unwrap(),
-                    ),
-                    (
-                        Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;sym_name&quot;</span>),
-                        Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;\&quot;add\&quot;&quot;</span>).unwrap(),
-                    ),
-                ])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>NamedAttribute::new_parsed_vec(
+                        <span class="kw-2">&amp;</span>context,
+                        <span class="kw-2">&amp;</span>[
+                            (<span class="string">&quot;function_type&quot;</span>, <span class="string">&quot;(i64, i64) -&gt; i64&quot;</span>),
+                            (<span class="string">&quot;sym_name&quot;</span>, <span class="string">&quot;\&quot;add\&quot;&quot;</span>),
+                        ],
+                    )
+                    .unwrap(),
+                )
                 .add_regions(<span class="macro">vec!</span>[region])
                 .build()
         };
@@ -626,13 +618,12 @@
             <span class="kw">let </span>zero = function_block.append_operation(
                 operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, location)
                     .add_results(<span class="kw-2">&amp;</span>[index_type])
-                    .add_attributes(<span class="kw-2">&amp;</span>[(
-                        Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                        Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;0 : index&quot;</span>).unwrap(),
-                    )])
+                    .add_attributes(
+                        <span class="kw-2">&amp;</span>NamedAttribute::new_parsed_vec(<span class="kw-2">&amp;</span>context, <span class="kw-2">&amp;</span>[(<span class="string">&quot;value&quot;</span>, <span class="string">&quot;0 : index&quot;</span>)])
+                            .unwrap(),
+                    )
                     .build(),
             );
-
             <span class="kw">let </span>dim = function_block.append_operation(
                 operation::Builder::new(<span class="string">&quot;memref.dim&quot;</span>, location)
                     .add_operands(<span class="kw-2">&amp;</span>[
@@ -649,10 +640,9 @@
             <span class="kw">let </span>one = function_block.append_operation(
                 operation::Builder::new(<span class="string">&quot;arith.constant&quot;</span>, location)
                     .add_results(<span class="kw-2">&amp;</span>[index_type])
-                    .add_attributes(<span class="kw-2">&amp;</span>[(
-                        Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>),
-                        Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;1 : index&quot;</span>).unwrap(),
-                    )])
+                    .add_attributes(<span class="kw-2">&amp;</span>[
+                        NamedAttribute::new_parsed(<span class="kw-2">&amp;</span>context, <span class="string">&quot;value&quot;</span>, <span class="string">&quot;1 : index&quot;</span>).unwrap()
+                    ])
                     .build(),
             );
 
@@ -726,16 +716,16 @@
             function_region.append_block(function_block);
 
             operation::Builder::new(<span class="string">&quot;func.func&quot;</span>, Location::unknown(<span class="kw-2">&amp;</span>context))
-                .add_attributes(<span class="kw-2">&amp;</span>[
-                    (
-                        Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;function_type&quot;</span>),
-                        Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;(memref&lt;?xf32&gt;, memref&lt;?xf32&gt;) -&gt; ()&quot;</span>).unwrap(),
-                    ),
-                    (
-                        Identifier::new(<span class="kw-2">&amp;</span>context, <span class="string">&quot;sym_name&quot;</span>),
-                        Attribute::parse(<span class="kw-2">&amp;</span>context, <span class="string">&quot;\&quot;sum\&quot;&quot;</span>).unwrap(),
-                    ),
-                ])
+                .add_attributes(
+                    <span class="kw-2">&amp;</span>NamedAttribute::new_parsed_vec(
+                        <span class="kw-2">&amp;</span>context,
+                        <span class="kw-2">&amp;</span>[
+                            (<span class="string">&quot;function_type&quot;</span>, <span class="string">&quot;(memref&lt;?xf32&gt;, memref&lt;?xf32&gt;) -&gt; ()&quot;</span>),
+                            (<span class="string">&quot;sym_name&quot;</span>, <span class="string">&quot;\&quot;sum\&quot;&quot;</span>),
+                        ],
+                    )
+                    .unwrap(),
+                )
                 .add_regions(<span class="macro">vec!</span>[function_region])
                 .build()
         };
