@@ -6,12 +6,13 @@ mod result;
 pub use self::{builder::Builder, result::ResultValue};
 use super::{BlockRef, Identifier, RegionRef, Value};
 use crate::mlir_sys::{
-    mlirOperationClone, mlirOperationDestroy, mlirOperationDump, mlirOperationEqual,
-    mlirOperationGetBlock, mlirOperationGetContext, mlirOperationGetName,
-    mlirOperationGetNextInBlock, mlirOperationGetNumRegions, mlirOperationGetNumResults,
-    mlirOperationGetRegion, mlirOperationGetResult, mlirOperationPrint, mlirOperationVerify,
-    MlirOperation,
+    mlirOpPrintingFlagsCreate, mlirOpPrintingFlagsEnableDebugInfo, mlirOperationClone,
+    mlirOperationDestroy, mlirOperationDump, mlirOperationEqual, mlirOperationGetBlock,
+    mlirOperationGetContext, mlirOperationGetName, mlirOperationGetNextInBlock,
+    mlirOperationGetNumRegions, mlirOperationGetNumResults, mlirOperationGetRegion,
+    mlirOperationGetResult, mlirOperationPrintWithFlags, mlirOperationVerify, MlirOperation,
 };
+use crate::utility::print_debug_callback;
 use crate::{
     context::{Context, ContextRef},
     utility::print_callback,
@@ -86,6 +87,23 @@ impl<'c> Operation<'c> {
         unsafe { mlirOperationGetNumRegions(self.raw) as usize }
     }
 
+    pub fn debug_print(&self) -> String {
+        let mut data = String::new();
+
+        unsafe {
+            let flags = mlirOpPrintingFlagsCreate();
+            mlirOpPrintingFlagsEnableDebugInfo(flags, true, false);
+            mlirOperationPrintWithFlags(
+                self.raw,
+                flags,
+                Some(print_debug_callback),
+                &mut data as *mut _ as *mut c_void,
+            );
+        };
+
+        data
+    }
+
     /// Gets the next operation in the same block.
     pub fn next_in_block(&self) -> Option<OperationRef> {
         unsafe {
@@ -150,8 +168,11 @@ impl<'a> Display for Operation<'a> {
         let mut data = (formatter, Ok(()));
 
         unsafe {
-            mlirOperationPrint(
+            let flags = mlirOpPrintingFlagsCreate();
+            mlirOpPrintingFlagsEnableDebugInfo(flags, false, false);
+            mlirOperationPrintWithFlags(
                 self.raw,
+                flags,
                 Some(print_callback),
                 &mut data as *mut _ as *mut c_void,
             );
@@ -335,6 +356,22 @@ mod tests {
                 Builder::new("foo", Location::unknown(&context)).build()
             ),
             "Operation(\n\"foo\"() : () -> ()\n)"
+        );
+    }
+
+    #[test]
+    fn debug_print() {
+        let context = Context::new();
+        context.set_allow_unregistered_dialects(true);
+
+        let op = Builder::new("foo", Location::new(&context, "file.ext", 1, 1)).build();
+        let debug_print = op.debug_print();
+
+        assert_eq!(
+            debug_print,
+            r#""foo"() : () -> () loc(#loc)
+#loc = loc("file.ext":1:1)
+"#
         );
     }
 }
