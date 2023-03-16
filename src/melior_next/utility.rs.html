@@ -133,6 +133,15 @@
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Utility functions.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
@@ -206,6 +215,15 @@
                 .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?
         </span>)
     })();
+}
+
+<span class="comment">// used to print ops with debug info
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>print_debug_callback(string: MlirStringRef, data: <span class="kw-2">*mut </span>c_void) {
+    <span class="kw">let </span>data = <span class="kw-2">&amp;mut *</span>(data <span class="kw">as </span><span class="kw-2">*mut </span>String);
+
+    <span class="kw">let </span>debug = StringRef::from_raw(string);
+    <span class="kw">let </span>debug_str = debug.as_str().unwrap();
+    data.push_str(debug_str);
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe extern </span><span class="string">&quot;C&quot; </span><span class="kw">fn </span>error_callback(string: MlirStringRef, data: <span class="kw-2">*mut </span>c_void) {
