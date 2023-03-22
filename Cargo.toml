@@ -14,6 +14,7 @@ documentation = "https://edg-l.github.io/melior-next"
 cuda = []
 
 [dependencies]
+itertools = "0.10.5"
 once_cell = "1"
 
 [dev-dependencies]

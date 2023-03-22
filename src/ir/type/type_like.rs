@@ -2,8 +2,8 @@ use super::Id;
 use crate::context::ContextRef;
 use crate::mlir_sys::{
     mlirTypeDump, mlirTypeGetContext, mlirTypeGetTypeID, mlirTypeIsABF16, mlirTypeIsAF16,
-    mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAMemRef, mlirTypeIsATuple,
-    mlirTypeIsAVector, MlirType,
+    mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAIndex, mlirTypeIsAInteger,
+    mlirTypeIsAMemRef, mlirTypeIsATuple, mlirTypeIsAVector, MlirType,
 };
 
 /// Trait for type-like types.
@@ -19,6 +19,16 @@ pub trait TypeLike<'c> {
     /// Gets an ID.
     fn id(&self) -> Id {
         unsafe { Id::from_raw(mlirTypeGetTypeID(self.to_raw())) }
+    }
+
+    /// Returns `true` if a type is integer.
+    fn is_integer(&self) -> bool {
+        unsafe { mlirTypeIsAInteger(self.to_raw()) }
+    }
+
+    /// Returns `true` if a type is index.
+    fn is_index(&self) -> bool {
+        unsafe { mlirTypeIsAIndex(self.to_raw()) }
     }
 
     /// Returns `true` if a type is bfloat16.

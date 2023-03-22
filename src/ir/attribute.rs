@@ -1,3 +1,6 @@
+use itertools::Itertools;
+use r#type::TypeLike;
+
 use super::{r#type, Type};
 use crate::mlir_sys::{
     mlirAttributeDump, mlirAttributeEqual, mlirAttributeGetContext, mlirAttributeGetNull,
@@ -37,6 +40,21 @@ impl<'c> Attribute<'c> {
                 StringRef::from(source).to_raw(),
             ))
         }
+    }
+
+    /// Creates an array attribute.
+    pub fn array(context: &'c Context, attributes: &[Attribute]) -> Option<Self> {
+        Self::parse(context, &format!("[{}]", attributes.iter().join(", ")))
+    }
+
+    /// Creates an integer attribute.
+    pub fn integer(
+        context: &'c Context,
+        integer_literal: &str,
+        integer_type: Type,
+    ) -> Option<Self> {
+        assert!(integer_type.is_integer());
+        Self::parse(context, &format!("{integer_literal} : {integer_type}"))
     }
 
     /// Creates a null attribute.
@@ -222,6 +240,25 @@ mod tests {
         for attribute in ["unit", "i32", r#""foo""#] {
             assert!(Attribute::parse(&Context::new(), attribute).is_some());
         }
+    }
+
+    #[test]
+    fn integer() {
+        let context = Context::new();
+        assert!(Attribute::integer(&Context::new(), "10", Type::integer(&context, 32)).is_some());
+    }
+
+    #[test]
+    fn array() {
+        let ctx = Context::new();
+        let attributes = ["unit", "i32", r#""foo""#]
+            .into_iter()
+            .map(|x| Attribute::parse(&ctx, x).unwrap())
+            .collect_vec();
+        let attr = Attribute::array(&ctx, &attributes);
+        assert!(attr.is_some());
+        let attr = attr.unwrap();
+        assert!(attr.is_array());
     }
 
     #[test]

@@ -10,6 +10,7 @@ pub struct NamedAttribute<'c> {
 }
 
 impl<'c> NamedAttribute<'c> {
+    /// Creates a new named attribute, parsing the given attribute.
     pub fn new_parsed(context: &'c Context, name: &str, attribute: &str) -> Result<Self, Error> {
         Ok(Self {
             identifier: Identifier::new(context, name),
@@ -18,6 +19,7 @@ impl<'c> NamedAttribute<'c> {
         })
     }
 
+    /// Creates a new vector of named attribute from the given pairs.
     pub fn new_parsed_vec(
         context: &'c Context,
         ident_attr_pairs: &[(&str, &str)],
