@@ -113,12 +113,22 @@
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Id;
 <span class="kw">use </span><span class="kw">crate</span>::context::ContextRef;
 <span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirTypeDump, mlirTypeGetContext, mlirTypeGetTypeID, mlirTypeIsABF16, mlirTypeIsAF16,
-    mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAMemRef, mlirTypeIsATuple,
-    mlirTypeIsAVector, MlirType,
+    mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAIndex, mlirTypeIsAInteger,
+    mlirTypeIsAMemRef, mlirTypeIsATuple, mlirTypeIsAVector, MlirType,
 };
 
 <span class="doccomment">/// Trait for type-like types.
@@ -134,6 +144,16 @@
     <span class="doccomment">/// Gets an ID.
     </span><span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Id {
         <span class="kw">unsafe </span>{ Id::from_raw(mlirTypeGetTypeID(<span class="self">self</span>.to_raw())) }
+    }
+
+    <span class="doccomment">/// Returns `true` if a type is integer.
+    </span><span class="kw">fn </span>is_integer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">unsafe </span>{ mlirTypeIsAInteger(<span class="self">self</span>.to_raw()) }
+    }
+
+    <span class="doccomment">/// Returns `true` if a type is index.
+    </span><span class="kw">fn </span>is_index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">unsafe </span>{ mlirTypeIsAIndex(<span class="self">self</span>.to_raw()) }
     }
 
     <span class="doccomment">/// Returns `true` if a type is bfloat16.

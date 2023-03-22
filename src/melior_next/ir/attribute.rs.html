@@ -414,7 +414,47 @@
 <a href="#414" id="414">414</a>
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
-</pre><pre class="rust"><code><span class="kw">use super</span>::{r#type, Type};
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+</pre><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>r#type::TypeLike;
+
+<span class="kw">use super</span>::{r#type, Type};
 <span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
     mlirAttributeDump, mlirAttributeEqual, mlirAttributeGetContext, mlirAttributeGetNull,
     mlirAttributeGetType, mlirAttributeGetTypeID, mlirAttributeIsAAffineMap, mlirAttributeIsAArray,
@@ -453,6 +493,21 @@
                 StringRef::from(source).to_raw(),
             ))
         }
+    }
+
+    <span class="doccomment">/// Creates an array attribute.
+    </span><span class="kw">pub fn </span>array(context: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>Context, attributes: <span class="kw-2">&amp;</span>[Attribute]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="self">Self</span>::parse(context, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;[{}]&quot;</span>, attributes.iter().join(<span class="string">&quot;, &quot;</span>)))
+    }
+
+    <span class="doccomment">/// Creates an integer attribute.
+    </span><span class="kw">pub fn </span>integer(
+        context: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c </span>Context,
+        integer_literal: <span class="kw-2">&amp;</span>str,
+        integer_type: Type,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="macro">assert!</span>(integer_type.is_integer());
+        <span class="self">Self</span>::parse(context, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{integer_literal} : {integer_type}&quot;</span>))
     }
 
     <span class="doccomment">/// Creates a null attribute.
@@ -638,6 +693,25 @@
         <span class="kw">for </span>attribute <span class="kw">in </span>[<span class="string">&quot;unit&quot;</span>, <span class="string">&quot;i32&quot;</span>, <span class="string">r#&quot;&quot;foo&quot;&quot;#</span>] {
             <span class="macro">assert!</span>(Attribute::parse(<span class="kw-2">&amp;</span>Context::new(), attribute).is_some());
         }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>integer() {
+        <span class="kw">let </span>context = Context::new();
+        <span class="macro">assert!</span>(Attribute::integer(<span class="kw-2">&amp;</span>Context::new(), <span class="string">&quot;10&quot;</span>, Type::integer(<span class="kw-2">&amp;</span>context, <span class="number">32</span>)).is_some());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>array() {
+        <span class="kw">let </span>ctx = Context::new();
+        <span class="kw">let </span>attributes = [<span class="string">&quot;unit&quot;</span>, <span class="string">&quot;i32&quot;</span>, <span class="string">r#&quot;&quot;foo&quot;&quot;#</span>]
+            .into_iter()
+            .map(|x| Attribute::parse(<span class="kw-2">&amp;</span>ctx, x).unwrap())
+            .collect_vec();
+        <span class="kw">let </span>attr = Attribute::array(<span class="kw-2">&amp;</span>ctx, <span class="kw-2">&amp;</span>attributes);
+        <span class="macro">assert!</span>(attr.is_some());
+        <span class="kw">let </span>attr = attr.unwrap();
+        <span class="macro">assert!</span>(attr.is_array());
     }
 
     <span class="attr">#[test]
