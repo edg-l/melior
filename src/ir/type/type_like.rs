@@ -3,7 +3,7 @@ use crate::context::ContextRef;
 use crate::mlir_sys::{
     mlirTypeDump, mlirTypeGetContext, mlirTypeGetTypeID, mlirTypeIsABF16, mlirTypeIsAF16,
     mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAIndex, mlirTypeIsAInteger,
-    mlirTypeIsAMemRef, mlirTypeIsATuple, mlirTypeIsAVector, MlirType,
+    mlirTypeIsAMemRef, mlirTypeIsATuple, mlirTypeIsAVector, MlirType, mlirIntegerTypeGetWidth
 };
 
 /// Trait for type-like types.
@@ -24,6 +24,17 @@ pub trait TypeLike<'c> {
     /// Returns `true` if a type is integer.
     fn is_integer(&self) -> bool {
         unsafe { mlirTypeIsAInteger(self.to_raw()) }
+    }
+
+    /// Gets the bit width of this integer type.
+    /// 
+    /// Returns None if this type is not an integer.
+    fn get_width(&self) -> Option<u32> {
+        if self.is_integer() {
+            Some(unsafe { mlirIntegerTypeGetWidth(self.to_raw()) })
+        } else {
+            None
+        }
     }
 
     /// Returns `true` if a type is index.
