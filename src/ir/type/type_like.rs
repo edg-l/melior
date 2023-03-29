@@ -1,9 +1,9 @@
 use super::Id;
 use crate::context::ContextRef;
 use crate::mlir_sys::{
-    mlirTypeDump, mlirTypeGetContext, mlirTypeGetTypeID, mlirTypeIsABF16, mlirTypeIsAF16,
-    mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAIndex, mlirTypeIsAInteger,
-    mlirTypeIsAMemRef, mlirTypeIsATuple, mlirTypeIsAVector, MlirType, mlirIntegerTypeGetWidth
+    mlirIntegerTypeGetWidth, mlirTypeDump, mlirTypeGetContext, mlirTypeGetTypeID, mlirTypeIsABF16,
+    mlirTypeIsAF16, mlirTypeIsAF32, mlirTypeIsAF64, mlirTypeIsAFunction, mlirTypeIsAIndex,
+    mlirTypeIsAInteger, mlirTypeIsAMemRef, mlirTypeIsATuple, mlirTypeIsAVector, MlirType,
 };
 
 /// Trait for type-like types.
@@ -27,7 +27,7 @@ pub trait TypeLike<'c> {
     }
 
     /// Gets the bit width of this integer type.
-    /// 
+    ///
     /// Returns None if this type is not an integer.
     fn get_width(&self) -> Option<u32> {
         if self.is_integer() {
