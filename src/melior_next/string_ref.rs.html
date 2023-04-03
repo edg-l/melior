@@ -81,28 +81,19 @@
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{mlirStringRefCreateFromCString, mlirStringRefEqual, MlirStringRef};
+<span class="kw">use </span>dashmap::DashMap;
 <span class="kw">use </span>once_cell::sync::Lazy;
 <span class="kw">use </span>std::{
-    collections::HashMap,
     ffi::CString,
     marker::PhantomData,
     slice,
     str::{<span class="self">self</span>, Utf8Error},
-    sync::RwLock,
 };
 
 <span class="comment">// We need to pass null-terminated strings to functions in the MLIR API although
 // Rust&#39;s strings are not.
-</span><span class="kw">static </span>STRING_CACHE: Lazy&lt;RwLock&lt;HashMap&lt;String, CString&gt;&gt;&gt; = Lazy::new(Default::default);
+</span><span class="kw">static </span>STRING_CACHE: Lazy&lt;DashMap&lt;String, CString&gt;&gt; = Lazy::new(Default::default);
 
 <span class="doccomment">/// A string reference.
 </span><span class="comment">// https://mlir.llvm.org/docs/CAPI/#stringref
@@ -152,17 +143,10 @@
 <span class="attr">#[allow(clippy::fallible_impl_from)] </span><span class="comment">// TODO: rework this
 </span><span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>StringRef&lt;<span class="lifetime">&#39;static</span>&gt; {
     <span class="kw">fn </span>from(string: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
-        <span class="kw">if </span>!STRING_CACHE.read().unwrap().contains_key(string) {
-            STRING_CACHE
-                .write()
-                .unwrap()
-                .insert(string.to_owned(), CString::new(string).unwrap());
-        }
-
-        <span class="kw">let </span>lock = STRING_CACHE.read().unwrap();
-        <span class="kw">let </span>string = lock.get(string).unwrap();
-
-        <span class="kw">unsafe </span>{ <span class="self">Self</span>::from_raw(mlirStringRefCreateFromCString(string.as_ptr())) }
+        <span class="kw">let </span>entry = STRING_CACHE
+            .entry(string.to_owned())
+            .or_insert_with(|| CString::new(string).unwrap());
+        <span class="kw">unsafe </span>{ <span class="self">Self</span>::from_raw(mlirStringRefCreateFromCString(entry.as_ptr())) }
     }
 }
 
