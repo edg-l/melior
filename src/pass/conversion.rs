@@ -8,6 +8,7 @@ use crate::mlir_sys::{
     mlirCreateConversionConvertFuncToLLVM, mlirCreateConversionConvertMathToLLVM,
     mlirCreateConversionConvertMathToLibm, mlirCreateConversionConvertMathToSPIRV,
     mlirCreateConversionGpuToLLVMConversionPass, mlirCreateConversionSCFToControlFlow,
+    mlirCreateConversionConvertIndexToLLVMPass
 };
 
 /// Creates a pass to convert the `arith` dialect to the `llvm` dialect.
@@ -33,6 +34,11 @@ pub fn convert_func_to_llvm() -> Pass {
 /// Creates a pass to convert the `math` dialect to the `llvm` dialect.
 pub fn convert_math_to_llvm() -> Pass {
     Pass::from_raw_fn(mlirCreateConversionConvertMathToLLVM)
+}
+
+/// Creates a pass to convert the builtin index to the `llvm` dialect.
+pub fn convert_index_to_llvm() -> Pass {
+    Pass::from_raw_fn(mlirCreateConversionConvertIndexToLLVMPass)
 }
 
 /// Creates a pass to convert the `cf` dialect to the `spirv` dialect.
