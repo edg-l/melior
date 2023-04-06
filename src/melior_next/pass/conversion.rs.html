@@ -74,6 +74,12 @@
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Dialect conversion passes.
 
 </span><span class="kw">use </span><span class="kw">super</span>::Pass;
@@ -84,6 +90,7 @@
     mlirCreateConversionConvertFuncToLLVM, mlirCreateConversionConvertMathToLLVM,
     mlirCreateConversionConvertMathToLibm, mlirCreateConversionConvertMathToSPIRV,
     mlirCreateConversionGpuToLLVMConversionPass, mlirCreateConversionSCFToControlFlow,
+    mlirCreateConversionConvertIndexToLLVMPass
 };
 
 <span class="doccomment">/// Creates a pass to convert the `arith` dialect to the `llvm` dialect.
@@ -109,6 +116,11 @@
 <span class="doccomment">/// Creates a pass to convert the `math` dialect to the `llvm` dialect.
 </span><span class="kw">pub fn </span>convert_math_to_llvm() -&gt; Pass {
     Pass::from_raw_fn(mlirCreateConversionConvertMathToLLVM)
+}
+
+<span class="doccomment">/// Creates a pass to convert the builtin index to the `llvm` dialect.
+</span><span class="kw">pub fn </span>convert_index_to_llvm() -&gt; Pass {
+    Pass::from_raw_fn(mlirCreateConversionConvertIndexToLLVMPass)
 }
 
 <span class="doccomment">/// Creates a pass to convert the `cf` dialect to the `spirv` dialect.
