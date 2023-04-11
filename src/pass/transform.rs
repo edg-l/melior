@@ -4,7 +4,8 @@ use super::Pass;
 use crate::mlir_sys::{
     mlirCreateTransformsCSE, mlirCreateTransformsCanonicalizer, mlirCreateTransformsInliner,
     mlirCreateTransformsPrintOpStats, mlirCreateTransformsSCCP, mlirCreateTransformsStripDebugInfo,
-    mlirCreateTransformsSymbolDCE, mlirCreateTransformsSymbolPrivatize, mlirRegisterTransformsCSE,
+    mlirCreateTransformsSymbolDCE, mlirCreateTransformsSymbolPrivatize,
+    mlirRegisterConversionReconcileUnrealizedCasts, mlirRegisterTransformsCSE,
     mlirRegisterTransformsCanonicalizer, mlirRegisterTransformsInliner,
     mlirRegisterTransformsPrintOpStats, mlirRegisterTransformsSCCP,
     mlirRegisterTransformsStripDebugInfo, mlirRegisterTransformsSymbolDCE,
@@ -89,4 +90,8 @@ pub fn print_operation_stats() -> Pass {
 /// Registers a pass to print operation stats.
 pub fn register_print_operation_stats() {
     unsafe { mlirRegisterTransformsPrintOpStats() }
+}
+
+pub fn register_reconcile_casts() {
+    unsafe { mlirRegisterConversionReconcileUnrealizedCasts() }
 }
