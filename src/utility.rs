@@ -51,7 +51,8 @@ pub fn parse_pass_pipeline(manager: pass::OperationManager, source: &str) -> Res
 }
 
 // TODO Use into_raw_parts.
-pub(crate) unsafe fn into_raw_array<T>(xs: Vec<T>) -> *mut T {
+pub(crate) unsafe fn into_raw_array<T>(mut xs: Vec<T>) -> *mut T {
+    xs.shrink_to_fit();
     xs.leak().as_mut_ptr()
 }
 
