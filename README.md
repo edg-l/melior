@@ -120,7 +120,7 @@ brew install llvm@16
 
 ## Documentation
 
-On [GitHub Pages](https://raviqqe.github.io/melior/melior/).
+On [GitHub Pages](https://edg-l.github.io/melior-next/melior_next).
 
 ## Contribution
 
