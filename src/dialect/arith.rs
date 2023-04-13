@@ -19,7 +19,7 @@ macro_rules! impl_arith_binary_op {
     };
 }
 
-impl_arith_binary_op!(addi, "addo");
+impl_arith_binary_op!(addi, "addi");
 impl_arith_binary_op!(subi, "subi");
 impl_arith_binary_op!(muli, "muli");
 impl_arith_binary_op!(divui, "divui");
