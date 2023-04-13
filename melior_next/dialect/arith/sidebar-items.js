@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["addi",""],["andi",""],["const","arith.constant"],["divui",""],["muli",""],["ori",""],["remui",""],["shrs",""],["shru",""],["subi",""],["xori",""]]};
