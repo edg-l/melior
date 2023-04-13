@@ -142,6 +142,7 @@
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Utility functions.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::mlir_sys::{
@@ -195,7 +196,8 @@
 }
 
 <span class="comment">// TODO Use into_raw_parts.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>into_raw_array&lt;T&gt;(xs: Vec&lt;T&gt;) -&gt; <span class="kw-2">*mut </span>T {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>into_raw_array&lt;T&gt;(<span class="kw-2">mut </span>xs: Vec&lt;T&gt;) -&gt; <span class="kw-2">*mut </span>T {
+    xs.shrink_to_fit();
     xs.leak().as_mut_ptr()
 }
 
