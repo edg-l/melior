@@ -29,7 +29,7 @@ return such references.</li>
 <h2 id="examples"><a href="#examples">Examples</a></h2><h3 id="building-a-function-to-add-integers-and-executing-it-using-the-jit-engine"><a href="#building-a-function-to-add-integers-and-executing-it-using-the-jit-engine">Building a function to add integers and executing it using the JIT engine.</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>melior_next::{
     Context,
-    dialect,
+    dialect::{<span class="self">self</span>, arith},
     ir::<span class="kw-2">*</span>,
     pass,
     utility::<span class="kw-2">*</span>,
@@ -42,6 +42,7 @@ register_all_dialects(<span class="kw-2">&amp;</span>registry);
 <span class="kw">let </span>context = Context::new();
 context.append_dialect_registry(<span class="kw-2">&amp;</span>registry);
 context.get_or_load_dialect(<span class="string">&quot;func&quot;</span>);
+context.get_or_load_dialect(<span class="string">&quot;arith&quot;</span>);
 register_all_llvm_translations(<span class="kw-2">&amp;</span>context);
 
 <span class="kw">let </span>location = Location::unknown(<span class="kw-2">&amp;</span>context);
@@ -52,12 +53,11 @@ register_all_llvm_translations(<span class="kw-2">&amp;</span>context);
 <span class="kw">let </span>function = {
     <span class="kw">let </span>region = Region::new();
     <span class="kw">let </span>block = Block::new(<span class="kw-2">&amp;</span>[(integer_type, location), (integer_type, location)]);
+    <span class="kw">let </span>arg1 = block.argument(<span class="number">0</span>).unwrap().into();
+    <span class="kw">let </span>arg2 = block.argument(<span class="number">1</span>).unwrap().into();
 
     <span class="kw">let </span>sum = block.append_operation(
-        operation::Builder::new(<span class="string">&quot;arith.addi&quot;</span>, location)
-            .add_operands(<span class="kw-2">&amp;</span>[block.argument(<span class="number">0</span>).unwrap().into(), block.argument(<span class="number">1</span>).unwrap().into()])
-            .add_results(<span class="kw-2">&amp;</span>[integer_type])
-            .build(),
+        arith::addi(arg1, arg2, integer_type, location)
     );
 
     block.append_operation(
