@@ -1,11 +1,12 @@
 [package]
 name = "melior-next"
 description = "The rustic MLIR bindings in Rust. Continued."
-version = "0.5.5"
+version = "0.5.6"
 edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/edg-l/melior-next"
 documentation = "https://edg-l.github.io/melior-next"
+keywords = ["mlir", "llvm", "ir", "bindings"]
 
 [features]
 
