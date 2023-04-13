@@ -6,7 +6,7 @@ edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/edg-l/melior-next"
 documentation = "https://edg-l.github.io/melior-next"
-keywords = ["mlir", "llvm", "ir", "bindings"]
+keywords = ["mlir", "llvm", "ir", "llvm-ir", "bindings"]
 
 [features]
 
