@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["addi",""],["andi",""],["const","arith.constant"],["divui",""],["muli",""],["ori",""],["remui",""],["shrs",""],["shru",""],["subi",""],["xori",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["addi",""],["andi",""],["const","arith.constant"],["divui",""],["muli",""],["ori",""],["remui",""],["shrsi",""],["shrui",""],["subi",""],["xori",""]]};
