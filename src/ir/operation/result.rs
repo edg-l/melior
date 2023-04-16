@@ -1,9 +1,6 @@
 use super::Value;
-use crate::mlir_sys::{mlirOpResultGetOwner, mlirOpResultGetResultNumber, MlirValue};
-use crate::{
-    ir::{OperationRef, ValueLike},
-    Error,
-};
+use crate::mlir_sys::{mlirOpResultGetResultNumber, MlirValue};
+use crate::{ir::ValueLike, Error};
 use std::fmt::{self, Display, Formatter};
 
 /// An operation result.
@@ -15,10 +12,6 @@ pub struct ResultValue<'a> {
 impl<'a> ResultValue<'a> {
     pub fn result_number(&self) -> usize {
         unsafe { mlirOpResultGetResultNumber(self.value.to_raw()) as usize }
-    }
-
-    pub fn owner(&self) -> OperationRef {
-        unsafe { OperationRef::from_raw(mlirOpResultGetOwner(self.value.to_raw())) }
     }
 
     pub(crate) unsafe fn from_raw(value: MlirValue) -> Self {
@@ -69,15 +62,5 @@ mod tests {
             .build();
 
         assert_eq!(operation.result(0).unwrap().result_number(), 0);
-    }
-
-    #[test]
-    fn owner() {
-        let context = Context::new();
-        context.set_allow_unregistered_dialects(true);
-        let r#type = Type::parse(&context, "index").unwrap();
-        let block = Block::new(&[(r#type, Location::unknown(&context))]);
-
-        assert_eq!(&*block.argument(0).unwrap().owner(), &block);
     }
 }

@@ -10,7 +10,7 @@ macro_rules! impl_arith_binary_op {
             rhs: Value<'c>,
             result: Type<'c>,
             location: Location<'c>,
-        ) -> Operation<'c> {
+        ) -> Operation {
             operation::Builder::new(concat!("arith.", $op), location)
                 .add_operands(&[lhs, rhs])
                 .add_results(&[result])
@@ -36,7 +36,7 @@ pub fn r#const<'c>(
     val: &str,
     result: Type<'c>,
     location: Location<'c>,
-) -> Operation<'c> {
+) -> Operation {
     operation::Builder::new("arith.constant", location)
         .add_results(&[result])
         .add_attributes(&[NamedAttribute::new_parsed(

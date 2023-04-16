@@ -4,36 +4,30 @@ mod builder;
 mod result;
 
 pub use self::{builder::Builder, result::ResultValue};
-use super::{BlockRef, Identifier, RegionRef, Value};
+use super::{Identifier, Region, Value};
 use crate::mlir_sys::{
     mlirOpPrintingFlagsCreate, mlirOpPrintingFlagsEnableDebugInfo, mlirOperationClone,
-    mlirOperationDestroy, mlirOperationDump, mlirOperationEqual, mlirOperationGetBlock,
-    mlirOperationGetContext, mlirOperationGetName, mlirOperationGetNextInBlock,
-    mlirOperationGetNumRegions, mlirOperationGetNumResults, mlirOperationGetRegion,
-    mlirOperationGetResult, mlirOperationPrintWithFlags, mlirOperationVerify, MlirOperation,
+    mlirOperationDestroy, mlirOperationDump, mlirOperationEqual, mlirOperationGetContext,
+    mlirOperationGetFirstRegion, mlirOperationGetName, mlirOperationGetNumResults,
+    mlirOperationGetResult, mlirOperationPrintWithFlags, mlirOperationVerify,
+    mlirRegionGetNextInOperation, MlirOperation,
 };
 use crate::utility::print_debug_callback;
-use crate::{
-    context::{Context, ContextRef},
-    utility::print_callback,
-    Error,
-};
+use crate::{context::ContextRef, utility::print_callback, Error};
 use core::fmt;
 use std::{
     ffi::c_void,
     fmt::{Debug, Display, Formatter},
-    marker::PhantomData,
-    mem::{forget, transmute},
-    ops::Deref,
 };
 
 /// An operation.
-pub struct Operation<'c> {
-    raw: MlirOperation,
-    _context: PhantomData<&'c Context>,
+pub struct Operation {
+    pub(crate) raw: MlirOperation,
+    pub(crate) owned: bool,
+    regions: Vec<Region>,
 }
 
-impl<'c> Operation<'c> {
+impl Operation {
     /// Gets a context.
     pub fn context(&self) -> ContextRef {
         unsafe { ContextRef::from_raw(mlirOperationGetContext(self.raw)) }
@@ -42,11 +36,6 @@ impl<'c> Operation<'c> {
     /// Gets a name.
     pub fn name(&self) -> Identifier {
         unsafe { Identifier::from_raw(mlirOperationGetName(self.raw)) }
-    }
-
-    /// Gets a block.
-    pub fn block(&self) -> Option<BlockRef> {
-        unsafe { BlockRef::from_option_raw(mlirOperationGetBlock(self.raw)) }
     }
 
     /// Gets a result at a position.
@@ -68,23 +57,19 @@ impl<'c> Operation<'c> {
         unsafe { mlirOperationGetNumResults(self.raw) as usize }
     }
 
-    /// Gets a result at an index.
-    pub fn region(&self, index: usize) -> Option<RegionRef> {
-        unsafe {
-            if index < self.region_count() {
-                Some(RegionRef::from_raw(mlirOperationGetRegion(
-                    self.raw,
-                    index as isize,
-                )))
-            } else {
-                None
-            }
-        }
+    /// Gets a region at index.
+    pub fn region(&self, index: usize) -> Option<&Region> {
+        self.regions.get(index)
     }
 
-    /// Gets a number of regions.
+    /// Gets a mutable region at index.
+    pub fn region_mut(&mut self, index: usize) -> Option<&mut Region> {
+        self.regions.get_mut(index)
+    }
+
+    /// Gets the number of regions.
     pub fn region_count(&self) -> usize {
-        unsafe { mlirOperationGetNumRegions(self.raw) as usize }
+        self.regions.len()
     }
 
     pub fn debug_print(&self) -> String {
@@ -104,7 +89,8 @@ impl<'c> Operation<'c> {
         data
     }
 
-    /// Gets the next operation in the same block.
+    // Gets the next operation in the same block.
+    /*
     pub fn next_in_block(&self) -> Option<OperationRef> {
         unsafe {
             let operation = mlirOperationGetNextInBlock(self.raw);
@@ -116,6 +102,7 @@ impl<'c> Operation<'c> {
             }
         }
     }
+    */
 
     /// Verifies an operation.
     pub fn verify(&self) -> bool {
@@ -127,43 +114,49 @@ impl<'c> Operation<'c> {
         unsafe { mlirOperationDump(self.raw) }
     }
 
-    pub(crate) unsafe fn from_raw(raw: MlirOperation) -> Self {
+    /// Gets this operation from the raw handle, population all the regions, recursively.
+    pub(crate) unsafe fn from_raw(raw: MlirOperation, owned: bool) -> Self {
+        let mut regions = Vec::default();
+
+        let mut current_region_raw = mlirOperationGetFirstRegion(raw);
+
+        while !current_region_raw.ptr.is_null() {
+            let region = unsafe { Region::from_raw(current_region_raw, false) };
+            regions.push(region);
+            current_region_raw = unsafe { mlirRegionGetNextInOperation(current_region_raw) };
+        }
+
         Self {
             raw,
-            _context: Default::default(),
+            owned,
+            regions,
         }
     }
-
-    pub(crate) unsafe fn into_raw(self) -> MlirOperation {
-        let operation = self.raw;
-
-        forget(self);
-
-        operation
-    }
 }
 
-impl<'c> Clone for Operation<'c> {
+impl Clone for Operation {
     fn clone(&self) -> Self {
-        unsafe { Operation::from_raw(mlirOperationClone(self.raw)) }
+        unsafe { Self::from_raw(mlirOperationClone(self.raw), true) }
     }
 }
 
-impl<'c> Drop for Operation<'c> {
+impl Drop for Operation {
     fn drop(&mut self) {
-        unsafe { mlirOperationDestroy(self.raw) };
+        if self.owned {
+            unsafe { mlirOperationDestroy(self.raw) };
+        }
     }
 }
 
-impl<'c> PartialEq for Operation<'c> {
+impl PartialEq for Operation {
     fn eq(&self, other: &Self) -> bool {
         unsafe { mlirOperationEqual(self.raw, other.raw) }
     }
 }
 
-impl<'c> Eq for Operation<'c> {}
+impl Eq for Operation {}
 
-impl<'a> Display for Operation<'a> {
+impl Display for Operation {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
         let mut data = (formatter, Ok(()));
 
@@ -182,7 +175,7 @@ impl<'a> Display for Operation<'a> {
     }
 }
 
-impl<'c> Debug for Operation<'c> {
+impl Debug for Operation {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
         writeln!(formatter, "Operation(")?;
         Display::fmt(self, formatter)?;
@@ -190,71 +183,10 @@ impl<'c> Debug for Operation<'c> {
     }
 }
 
-/// A reference to an operation.
-// TODO Should we split context lifetimes? Or, is it transitively proven that
-// 'c > 'a?
-#[derive(Clone, Copy)]
-pub struct OperationRef<'a> {
-    raw: MlirOperation,
-    _reference: PhantomData<&'a Operation<'a>>,
-}
-
-impl<'a> OperationRef<'a> {
-    pub(crate) const unsafe fn to_raw(self) -> MlirOperation {
-        self.raw
-    }
-
-    pub(crate) unsafe fn from_raw(raw: MlirOperation) -> Self {
-        Self {
-            raw,
-            _reference: Default::default(),
-        }
-    }
-
-    pub(crate) unsafe fn from_option_raw(raw: MlirOperation) -> Option<Self> {
-        if raw.ptr.is_null() {
-            None
-        } else {
-            Some(Self::from_raw(raw))
-        }
-    }
-}
-
-impl<'a> Deref for OperationRef<'a> {
-    type Target = Operation<'a>;
-
-    fn deref(&self) -> &Self::Target {
-        unsafe { transmute(self) }
-    }
-}
-
-impl<'a> PartialEq for OperationRef<'a> {
-    fn eq(&self, other: &Self) -> bool {
-        unsafe { mlirOperationEqual(self.raw, other.raw) }
-    }
-}
-
-impl<'a> Eq for OperationRef<'a> {}
-
-impl<'a> Display for OperationRef<'a> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        Display::fmt(self.deref(), formatter)
-    }
-}
-
-impl<'a> Debug for OperationRef<'a> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        Debug::fmt(self.deref(), formatter)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        context::Context,
-        ir::{Block, Location},
-    };
+    use crate::{context::Context, ir::Location};
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -274,29 +206,6 @@ mod tests {
                 .build()
                 .name(),
             Identifier::new(&context, "foo")
-        );
-    }
-
-    #[test]
-    fn block() {
-        let context = Context::new();
-        context.set_allow_unregistered_dialects(true);
-        let block = Block::new(&[]);
-        let operation =
-            block.append_operation(Builder::new("foo", Location::unknown(&context)).build());
-
-        assert_eq!(operation.block().as_deref(), Some(&block));
-    }
-
-    #[test]
-    fn block_none() {
-        let context = Context::new();
-        context.set_allow_unregistered_dialects(true);
-        assert_eq!(
-            Builder::new("foo", Location::unknown(&context))
-                .build()
-                .block(),
-            None
         );
     }
 

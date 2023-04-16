@@ -2,54 +2,55 @@
 
 mod argument;
 
+use smallvec::SmallVec;
+
 pub use self::argument::Argument;
-use super::{Location, Operation, OperationRef, RegionRef, Type, TypeLike, Value};
+use super::{Location, Operation, Type, TypeLike, Value};
 use crate::mlir_sys::{
     mlirBlockAddArgument, mlirBlockAppendOwnedOperation, mlirBlockCreate, mlirBlockDestroy,
-    mlirBlockDetach, mlirBlockEqual, mlirBlockGetArgument, mlirBlockGetFirstOperation,
-    mlirBlockGetNextInRegion, mlirBlockGetNumArguments, mlirBlockGetParentOperation,
-    mlirBlockGetParentRegion, mlirBlockGetTerminator, mlirBlockInsertOwnedOperation,
-    mlirBlockInsertOwnedOperationAfter, mlirBlockInsertOwnedOperationBefore, mlirBlockPrint,
-    MlirBlock,
+    mlirBlockEqual, mlirBlockGetArgument, mlirBlockGetFirstOperation, mlirBlockGetNumArguments,
+    mlirBlockGetTerminator, mlirBlockInsertOwnedOperation, mlirBlockInsertOwnedOperationAfter,
+    mlirBlockInsertOwnedOperationBefore, mlirBlockPrint, mlirOperationEqual,
+    mlirOperationGetNextInBlock, MlirBlock,
 };
 use crate::{
-    context::Context,
     utility::{into_raw_array, print_callback},
     Error,
 };
 use std::{
     ffi::c_void,
     fmt::{self, Debug, Display, Formatter},
-    marker::PhantomData,
-    mem::{forget, transmute},
-    ops::Deref,
 };
 
 /// A block.
-pub struct Block<'c> {
+pub struct Block {
     raw: MlirBlock,
-    _context: PhantomData<&'c Context>,
+    pub(crate) owned: bool,
+    operations: Vec<Operation>,
 }
 
-impl<'c> Block<'c> {
+impl Block {
     /// Creates a block.
-    pub fn new(arguments: &[(Type<'c>, Location<'c>)]) -> Self {
+    pub fn new(arguments: &[(Type, Location)]) -> Self {
         unsafe {
-            Self::from_raw(mlirBlockCreate(
-                arguments.len() as isize,
-                into_raw_array(
-                    arguments
-                        .iter()
-                        .map(|(argument, _)| argument.to_raw())
-                        .collect(),
+            Self::from_raw(
+                mlirBlockCreate(
+                    arguments.len() as isize,
+                    into_raw_array(
+                        arguments
+                            .iter()
+                            .map(|(argument, _)| argument.to_raw())
+                            .collect(),
+                    ),
+                    into_raw_array(
+                        arguments
+                            .iter()
+                            .map(|(_, location)| location.to_raw())
+                            .collect(),
+                    ),
                 ),
-                into_raw_array(
-                    arguments
-                        .iter()
-                        .map(|(_, location)| location.to_raw())
-                        .collect(),
-                ),
-            ))
+                true,
+            )
         }
     }
 
@@ -73,35 +74,27 @@ impl<'c> Block<'c> {
     }
 
     /// Gets the first operation.
-    pub fn first_operation(&self) -> Option<OperationRef> {
-        unsafe {
-            let operation = mlirBlockGetFirstOperation(self.raw);
-
-            if operation.ptr.is_null() {
-                None
-            } else {
-                Some(OperationRef::from_raw(operation))
-            }
-        }
+    pub fn first_operation(&self) -> Option<&Operation> {
+        self.operations.first()
     }
 
     /// Gets a terminator operation.
-    pub fn terminator(&self) -> Option<OperationRef> {
-        unsafe { OperationRef::from_option_raw(mlirBlockGetTerminator(self.raw)) }
-    }
-
-    /// Gets a parent region.
-    pub fn parent_region(&self) -> Option<RegionRef> {
-        unsafe { RegionRef::from_option_raw(mlirBlockGetParentRegion(self.raw)) }
+    pub fn terminator(&self) -> Option<&Operation> {
+        let term_op = unsafe { mlirBlockGetTerminator(self.raw) };
+        self.operations
+            .iter()
+            .find(|&op| unsafe { mlirOperationEqual(term_op, op.raw) })
     }
 
     /// Gets a parent operation.
+    /*
     pub fn parent_operation(&self) -> Option<OperationRef> {
         unsafe { OperationRef::from_option_raw(mlirBlockGetParentOperation(self.raw)) }
     }
+    */
 
     /// Adds an argument.
-    pub fn add_argument(&self, r#type: Type<'c>, location: Location<'c>) -> Value {
+    pub fn add_argument(&self, r#type: Type, location: Location) -> Value {
         unsafe {
             Value::from_raw(mlirBlockAddArgument(
                 self.raw,
@@ -112,49 +105,61 @@ impl<'c> Block<'c> {
     }
 
     /// Appends an operation.
-    pub fn append_operation(&self, operation: Operation) -> OperationRef {
+    pub fn append_operation(&mut self, mut operation: Operation) -> &Operation {
         unsafe {
-            let operation = operation.into_raw();
-
-            mlirBlockAppendOwnedOperation(self.raw, operation);
-
-            OperationRef::from_raw(operation)
+            mlirBlockAppendOwnedOperation(self.raw, operation.raw);
         }
+        operation.owned = false;
+        self.operations.push(operation);
+        self.operations.last().unwrap()
     }
 
     /// Inserts an operation.
-    // TODO How can we make those update functions take `&mut self`?
-    // TODO Use cells?
-    pub fn insert_operation(&self, position: usize, operation: Operation) -> OperationRef {
+    pub fn insert_operation(&mut self, position: usize, mut operation: Operation) -> &Operation {
         unsafe {
-            let operation = operation.into_raw();
-
-            mlirBlockInsertOwnedOperation(self.raw, position as isize, operation);
-
-            OperationRef::from_raw(operation)
+            mlirBlockInsertOwnedOperation(self.raw, position as isize, operation.raw);
         }
+        operation.owned = false;
+        self.operations.insert(position, operation);
+        &self.operations[position]
     }
 
     /// Inserts an operation after another.
-    pub fn insert_operation_after(&self, one: OperationRef, other: Operation) -> OperationRef {
-        unsafe {
-            let other = other.into_raw();
-
-            mlirBlockInsertOwnedOperationAfter(self.raw, one.to_raw(), other);
-
-            OperationRef::from_raw(other)
+    pub fn insert_operation_after(
+        &mut self,
+        reference: &Operation,
+        mut other: Operation,
+    ) -> Result<&Operation, Error> {
+        for (i, b) in self.operations.iter().enumerate() {
+            if *b == *reference {
+                unsafe {
+                    mlirBlockInsertOwnedOperationAfter(self.raw, reference.raw, other.raw);
+                }
+                other.owned = false;
+                self.operations.insert(i + 1, other);
+                return Ok(&self.operations[i]);
+            }
         }
+        Err(Error::OperationNotFound)
     }
 
     /// Inserts an operation before another.
-    pub fn insert_operation_before(&self, one: OperationRef, other: Operation) -> OperationRef {
-        unsafe {
-            let other = other.into_raw();
-
-            mlirBlockInsertOwnedOperationBefore(self.raw, one.to_raw(), other);
-
-            OperationRef::from_raw(other)
+    pub fn insert_operation_before(
+        &mut self,
+        reference: &Operation,
+        mut other: Operation,
+    ) -> Result<&Operation, Error> {
+        for (i, b) in self.operations.iter().enumerate() {
+            if *b == *reference {
+                unsafe {
+                    mlirBlockInsertOwnedOperationBefore(self.raw, reference.raw, other.raw);
+                }
+                other.owned = false;
+                self.operations.insert(i, other);
+                return Ok(&self.operations[i]);
+            }
         }
+        Err(Error::OperationNotFound)
     }
 
     /// Detaches a block from a region and assumes its ownership.
@@ -164,6 +169,8 @@ impl<'c> Block<'c> {
     /// This function might invalidate existing references to the block if you
     /// drop it too early.
     // TODO Implement this for BlockRefMut instead and mark it safe.
+    // todo: implñement this in region
+    /*
     pub unsafe fn detach(&self) -> Option<Block> {
         if self.parent_region().is_some() {
             mlirBlockDetach(self.raw);
@@ -173,25 +180,29 @@ impl<'c> Block<'c> {
             None
         }
     }
+    */
 
     /// Gets a next block in a region.
-    pub fn next_in_region(&self) -> Option<BlockRef> {
-        unsafe { BlockRef::from_option_raw(mlirBlockGetNextInRegion(self.raw)) }
-    }
+    // pub fn next_in_region(&self) -> Option<BlockRef> {
+    //    unsafe { BlockRef::from_option_raw(mlirBlockGetNextInRegion(self.raw)) }
+    // }
 
-    pub(crate) unsafe fn from_raw(raw: MlirBlock) -> Self {
+    pub(crate) unsafe fn from_raw(raw: MlirBlock, owned: bool) -> Self {
+        let mut operations = Vec::default();
+
+        let mut current_op_raw = unsafe { mlirBlockGetFirstOperation(raw) };
+
+        while !current_op_raw.ptr.is_null() {
+            let op = unsafe { Operation::from_raw(current_op_raw, false) };
+            operations.push(op);
+            current_op_raw = unsafe { mlirOperationGetNextInBlock(current_op_raw) };
+        }
+
         Self {
             raw,
-            _context: Default::default(),
+            owned,
+            operations,
         }
-    }
-
-    pub(crate) unsafe fn into_raw(self) -> MlirBlock {
-        let block = self.raw;
-
-        forget(self);
-
-        block
     }
 
     pub(crate) const unsafe fn to_raw(&self) -> MlirBlock {
@@ -199,21 +210,23 @@ impl<'c> Block<'c> {
     }
 }
 
-impl<'c> Drop for Block<'c> {
+impl Drop for Block {
     fn drop(&mut self) {
-        unsafe { mlirBlockDestroy(self.raw) };
+        if self.owned {
+            unsafe { mlirBlockDestroy(self.raw) };
+        }
     }
 }
 
-impl<'c> PartialEq for Block<'c> {
+impl PartialEq for Block {
     fn eq(&self, other: &Self) -> bool {
         unsafe { mlirBlockEqual(self.raw, other.raw) }
     }
 }
 
-impl<'c> Eq for Block<'c> {}
+impl Eq for Block {}
 
-impl<'c> Display for Block<'c> {
+impl Display for Block {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
         let mut data = (formatter, Ok(()));
 
@@ -229,63 +242,11 @@ impl<'c> Display for Block<'c> {
     }
 }
 
-impl<'c> Debug for Block<'c> {
+impl Debug for Block {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
         writeln!(formatter, "Block(")?;
         Display::fmt(self, formatter)?;
         write!(formatter, ")")
-    }
-}
-
-/// A reference of a block.
-#[derive(Clone, Copy)]
-pub struct BlockRef<'a> {
-    raw: MlirBlock,
-    _reference: PhantomData<&'a Block<'a>>,
-}
-
-impl<'c> BlockRef<'c> {
-    pub(crate) unsafe fn from_raw(raw: MlirBlock) -> Self {
-        Self {
-            raw,
-            _reference: Default::default(),
-        }
-    }
-
-    pub(crate) unsafe fn from_option_raw(raw: MlirBlock) -> Option<Self> {
-        if raw.ptr.is_null() {
-            None
-        } else {
-            Some(Self::from_raw(raw))
-        }
-    }
-}
-
-impl<'a> Deref for BlockRef<'a> {
-    type Target = Block<'a>;
-
-    fn deref(&self) -> &Self::Target {
-        unsafe { transmute(self) }
-    }
-}
-
-impl<'a> PartialEq for BlockRef<'a> {
-    fn eq(&self, other: &Self) -> bool {
-        unsafe { mlirBlockEqual(self.raw, other.raw) }
-    }
-}
-
-impl<'a> Eq for BlockRef<'a> {}
-
-impl<'a> Display for BlockRef<'a> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        Display::fmt(self.deref(), formatter)
-    }
-}
-
-impl<'a> Debug for BlockRef<'a> {
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        Debug::fmt(self.deref(), formatter)
     }
 }
 
@@ -294,8 +255,9 @@ mod tests {
     use super::*;
     use crate::{
         dialect::{self, Registry},
-        ir::{operation, Module, NamedAttribute, Region, ValueLike},
+        ir::{operation, NamedAttribute, ValueLike},
         utility::register_all_dialects,
+        Context,
     };
     use pretty_assertions::assert_eq;
 
@@ -331,6 +293,7 @@ mod tests {
         assert_eq!(Block::new(&[]).argument_count(), 0);
     }
 
+    /*
     #[test]
     fn parent_region() {
         let region = Region::new();
@@ -363,6 +326,7 @@ mod tests {
 
         assert_eq!(block.parent_operation(), None);
     }
+    */
 
     #[test]
     fn terminator() {
@@ -373,7 +337,7 @@ mod tests {
         context.append_dialect_registry(&registry);
         context.load_all_available_dialects();
 
-        let block = Block::new(&[]);
+        let mut block = Block::new(&[]);
 
         let operation = block.append_operation(
             operation::Builder::new("func.return", Location::unknown(&context)).build(),
@@ -394,7 +358,7 @@ mod tests {
         register_all_dialects(&registry);
         context.append_dialect_registry(&registry);
         context.get_or_load_dialect("arith");
-        let block = Block::new(&[]);
+        let mut block = Block::new(&[]);
 
         let op = block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
@@ -422,7 +386,7 @@ mod tests {
         register_all_dialects(&registry);
         context.append_dialect_registry(&registry);
         context.get_or_load_dialect("arith");
-        let block = Block::new(&[]);
+        let mut block = Block::new(&[]);
 
         block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
@@ -441,7 +405,7 @@ mod tests {
         register_all_dialects(&registry);
         context.append_dialect_registry(&registry);
         context.get_or_load_dialect("arith");
-        let block = Block::new(&[]);
+        let mut block = Block::new(&[]);
 
         block.insert_operation(
             0,
@@ -461,7 +425,7 @@ mod tests {
         register_all_dialects(&registry);
         context.append_dialect_registry(&registry);
         context.get_or_load_dialect("arith");
-        let block = Block::new(&[]);
+        let mut block = Block::new(&[]);
 
         let first_operation = block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
@@ -471,21 +435,20 @@ mod tests {
                 )
                 .build(),
         );
-        let second_operation = block.insert_operation_after(
-            first_operation,
-            operation::Builder::new("arith.constant", Location::unknown(&context))
-                .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(
-                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
-                )
-                .build(),
-        );
+        let second_operation = block
+            .insert_operation_after(
+                first_operation,
+                operation::Builder::new("arith.constant", Location::unknown(&context))
+                    .add_results(&[Type::integer(&context, 32)])
+                    .add_attributes(&[
+                        NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()
+                    ])
+                    .build(),
+            )
+            .unwrap();
 
         assert_eq!(block.first_operation(), Some(first_operation));
-        assert_eq!(
-            block.first_operation().unwrap().next_in_block(),
-            Some(second_operation)
-        );
+        assert_eq!(block.operations.get(1), Some(second_operation));
     }
 
     #[test]
@@ -495,7 +458,7 @@ mod tests {
         register_all_dialects(&registry);
         context.append_dialect_registry(&registry);
         context.get_or_load_dialect("arith");
-        let block = Block::new(&[]);
+        let mut block = Block::new(&[]);
 
         let second_operation = block.append_operation(
             operation::Builder::new("arith.constant", Location::unknown(&context))
@@ -505,33 +468,23 @@ mod tests {
                 )
                 .build(),
         );
-        let first_operation = block.insert_operation_before(
-            second_operation,
-            operation::Builder::new("arith.constant", Location::unknown(&context))
-                .add_results(&[Type::integer(&context, 32)])
-                .add_attributes(
-                    &[NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()],
-                )
-                .build(),
-        );
+        let first_operation = block
+            .insert_operation_before(
+                second_operation,
+                operation::Builder::new("arith.constant", Location::unknown(&context))
+                    .add_results(&[Type::integer(&context, 32)])
+                    .add_attributes(&[
+                        NamedAttribute::new_parsed(&context, "value", "0 : i32").unwrap()
+                    ])
+                    .build(),
+            )
+            .unwrap();
 
-        assert_eq!(block.first_operation(), Some(first_operation));
-        assert_eq!(
-            block.first_operation().unwrap().next_in_block(),
-            Some(second_operation)
-        );
+        assert_eq!(block.operations.first(), Some(first_operation));
+        assert_eq!(block.operations.get(1), Some(second_operation));
     }
 
-    #[test]
-    fn next_in_region() {
-        let region = Region::new();
-
-        let first_block = region.append_block(Block::new(&[]));
-        let second_block = region.append_block(Block::new(&[]));
-
-        assert_eq!(first_block.next_in_region(), Some(second_block));
-    }
-
+    /*
     #[test]
     fn detach() {
         let region = Region::new();
@@ -542,13 +495,7 @@ mod tests {
             "<<UNLINKED BLOCK>>\n"
         );
     }
-
-    #[test]
-    fn detach_detached() {
-        let block = Block::new(&[]);
-
-        assert!(unsafe { block.detach() }.is_none());
-    }
+    */
 
     #[test]
     fn display() {

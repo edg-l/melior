@@ -1,19 +1,21 @@
-use super::{Block, BlockRef};
-use crate::mlir_sys::{
-    mlirRegionAppendOwnedBlock, mlirRegionCreate, mlirRegionDestroy, mlirRegionEqual,
-    mlirRegionGetFirstBlock, mlirRegionInsertOwnedBlockAfter, mlirRegionInsertOwnedBlockBefore,
-    MlirRegion,
-};
-use std::{
-    marker::PhantomData,
-    mem::{forget, transmute},
-    ops::Deref,
+use smallvec::SmallVec;
+
+use super::Block;
+use crate::{
+    mlir_sys::{
+        mlirBlockGetNextInRegion, mlirRegionAppendOwnedBlock, mlirRegionCreate, mlirRegionDestroy,
+        mlirRegionEqual, mlirRegionGetFirstBlock, mlirRegionInsertOwnedBlockAfter,
+        mlirRegionInsertOwnedBlockBefore, MlirRegion,
+    },
+    Error,
 };
 
 /// A region.
 #[derive(Debug)]
 pub struct Region {
-    raw: MlirRegion,
+    pub(crate) raw: MlirRegion,
+    pub(crate) owned: bool,
+    pub blocks: Vec<Block>,
 }
 
 impl Region {
@@ -21,61 +23,80 @@ impl Region {
     pub fn new() -> Self {
         Self {
             raw: unsafe { mlirRegionCreate() },
+            owned: true,
+            blocks: Vec::default(),
         }
     }
 
     /// Gets the first block in a region.
-    pub fn first_block(&self) -> Option<BlockRef> {
-        unsafe {
-            let block = mlirRegionGetFirstBlock(self.raw);
+    pub fn first_block(&self) -> Option<&Block> {
+        self.blocks.first()
+    }
 
-            if block.ptr.is_null() {
-                None
-            } else {
-                Some(BlockRef::from_raw(block))
-            }
-        }
+    /// Gets the last block in a region.
+    pub fn last_block(&self) -> Option<&Block> {
+        self.blocks.last()
     }
 
     /// Inserts a block after another block.
-    pub fn insert_block_after(&self, one: BlockRef, other: Block) -> BlockRef {
-        unsafe {
-            let r#ref = BlockRef::from_raw(other.to_raw());
-
-            mlirRegionInsertOwnedBlockAfter(self.raw, one.to_raw(), other.into_raw());
-
-            r#ref
+    pub fn insert_block_after(
+        &mut self,
+        reference: &Block,
+        mut block: Block,
+    ) -> Result<&Block, Error> {
+        for (i, b) in self.blocks.iter().enumerate() {
+            if *b == *reference {
+                unsafe {
+                    mlirRegionInsertOwnedBlockAfter(self.raw, reference.to_raw(), block.to_raw());
+                }
+                block.owned = false;
+                self.blocks.insert(i + 1, block);
+                return Ok(&self.blocks[i]);
+            }
         }
+        Err(Error::BlockNotFound)
     }
 
     /// Inserts a block before another block.
-    pub fn insert_block_before(&self, one: BlockRef, other: Block) -> BlockRef {
-        unsafe {
-            let r#ref = BlockRef::from_raw(other.to_raw());
-
-            mlirRegionInsertOwnedBlockBefore(self.raw, one.to_raw(), other.into_raw());
-
-            r#ref
+    pub fn insert_block_before(
+        &mut self,
+        reference: &Block,
+        mut block: Block,
+    ) -> Result<&Block, Error> {
+        for (i, b) in self.blocks.iter().enumerate() {
+            if *b == *reference {
+                unsafe {
+                    mlirRegionInsertOwnedBlockBefore(self.raw, reference.to_raw(), block.to_raw());
+                }
+                block.owned = false;
+                self.blocks.insert(i, block);
+                return Ok(&self.blocks[i]);
+            }
         }
+        Err(Error::BlockNotFound)
     }
 
-    /// Appends a block.
-    pub fn append_block(&self, block: Block) -> BlockRef {
-        unsafe {
-            let r#ref = BlockRef::from_raw(block.to_raw());
-
-            mlirRegionAppendOwnedBlock(self.raw, block.into_raw());
-
-            r#ref
-        }
+    /// Appends a block, returning a reference to it.
+    pub fn append_block(&mut self, mut block: Block) -> &Block {
+        unsafe { mlirRegionAppendOwnedBlock(self.raw, block.to_raw()) };
+        block.owned = false;
+        self.blocks.push(block);
+        self.blocks.last().unwrap()
     }
 
-    pub(crate) unsafe fn into_raw(self) -> crate::mlir_sys::MlirRegion {
-        let region = self.raw;
+    /// Gets this region from the raw handle, population all the blocks, recursively.
+    pub(crate) unsafe fn from_raw(raw: MlirRegion, owned: bool) -> Self {
+        let mut blocks = Vec::default();
 
-        forget(self);
+        let mut current_block_raw = unsafe { mlirRegionGetFirstBlock(raw) };
 
-        region
+        while !current_block_raw.ptr.is_null() {
+            let block = Block::from_raw(current_block_raw, false);
+            blocks.push(block);
+            current_block_raw = unsafe { mlirBlockGetNextInRegion(current_block_raw) };
+        }
+
+        Self { raw, owned, blocks }
     }
 }
 
@@ -87,7 +108,9 @@ impl Default for Region {
 
 impl Drop for Region {
     fn drop(&mut self) {
-        unsafe { mlirRegionDestroy(self.raw) }
+        if self.owned {
+            unsafe { mlirRegionDestroy(self.raw) }
+        }
     }
 }
 
@@ -98,46 +121,6 @@ impl PartialEq for Region {
 }
 
 impl Eq for Region {}
-
-/// A reference to a region.
-#[derive(Clone, Copy, Debug)]
-pub struct RegionRef<'a> {
-    raw: MlirRegion,
-    _region: PhantomData<&'a Region>,
-}
-
-impl<'a> RegionRef<'a> {
-    pub(crate) unsafe fn from_raw(raw: MlirRegion) -> Self {
-        Self {
-            raw,
-            _region: Default::default(),
-        }
-    }
-
-    pub(crate) unsafe fn from_option_raw(raw: MlirRegion) -> Option<Self> {
-        if raw.ptr.is_null() {
-            None
-        } else {
-            Some(Self::from_raw(raw))
-        }
-    }
-}
-
-impl<'a> Deref for RegionRef<'a> {
-    type Target = Region;
-
-    fn deref(&self) -> &Self::Target {
-        unsafe { transmute(self) }
-    }
-}
-
-impl<'a> PartialEq for RegionRef<'a> {
-    fn eq(&self, other: &Self) -> bool {
-        unsafe { mlirRegionEqual(self.raw, other.raw) }
-    }
-}
-
-impl<'a> Eq for RegionRef<'a> {}
 
 #[cfg(test)]
 mod tests {
@@ -155,7 +138,7 @@ mod tests {
 
     #[test]
     fn append_block() {
-        let region = Region::new();
+        let mut region = Region::new();
         let block = Block::new(&[]);
 
         region.append_block(block);
@@ -165,7 +148,7 @@ mod tests {
 
     #[test]
     fn insert_block_after() {
-        let region = Region::new();
+        let mut region = Region::new();
 
         let block = region.append_block(Block::new(&[]));
         region.insert_block_after(block, Block::new(&[]));
@@ -175,10 +158,10 @@ mod tests {
 
     #[test]
     fn insert_block_before() {
-        let region = Region::new();
+        let mut region = Region::new();
 
         let block = region.append_block(Block::new(&[]));
-        let block = region.insert_block_before(block, Block::new(&[]));
+        let block = region.insert_block_before(block, Block::new(&[])).unwrap();
 
         assert_eq!(region.first_block(), Some(block));
     }

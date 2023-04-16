@@ -15,13 +15,13 @@ mod value;
 pub use self::{
     affine_map::AffineMap,
     attribute::Attribute,
-    block::{Block, BlockRef},
+    block::Block,
     identifier::Identifier,
     location::Location,
     module::Module,
     named_attribute::NamedAttribute,
-    operation::{Operation, OperationRef},
+    operation::Operation,
     r#type::{Type, TypeLike},
-    region::{Region, RegionRef},
+    region::Region,
     value::{Value, ValueLike},
 };

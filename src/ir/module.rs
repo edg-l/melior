@@ -1,4 +1,4 @@
-use super::{BlockRef, Location, Operation, OperationRef};
+use super::{Block, Location, Operation};
 use crate::mlir_sys::{
     mlirModuleCreateEmpty, mlirModuleCreateParse, mlirModuleDestroy, mlirModuleFromOperation,
     mlirModuleGetBody, mlirModuleGetContext, mlirModuleGetOperation, MlirModule,
@@ -13,6 +13,8 @@ use std::marker::PhantomData;
 #[derive(Debug)]
 pub struct Module<'c> {
     raw: MlirModule,
+    pub operation: Operation,
+    pub body: Block,
     _context: PhantomData<&'c Context>,
 }
 
@@ -33,29 +35,23 @@ impl<'c> Module<'c> {
         }
     }
 
-    /// Converts a module into an operation.
-    pub fn as_operation(&self) -> OperationRef {
-        unsafe { OperationRef::from_raw(mlirModuleGetOperation(self.raw)) }
-    }
-
     /// Gets a context.
     pub fn context(&self) -> ContextRef<'c> {
         unsafe { ContextRef::from_raw(mlirModuleGetContext(self.raw)) }
     }
 
-    /// Gets a block of a module body.
-    pub fn body(&self) -> BlockRef {
-        unsafe { BlockRef::from_raw(mlirModuleGetBody(self.raw)) }
-    }
-
     /// Converts an operation into a module.
     pub fn from_operation(operation: Operation) -> Option<Self> {
-        unsafe { Self::from_option_raw(mlirModuleFromOperation(operation.into_raw())) }
+        unsafe { Self::from_option_raw(mlirModuleFromOperation(operation.raw)) }
     }
 
     unsafe fn from_raw(raw: MlirModule) -> Self {
+        let operation = unsafe { Operation::from_raw(mlirModuleGetOperation(raw), false) };
+        let body = unsafe { Block::from_raw(mlirModuleGetBody(raw), false) };
         Self {
             raw,
+            operation,
+            body,
             _context: Default::default(),
         }
     }
@@ -112,7 +108,7 @@ mod tests {
     fn from_operation() {
         let context = Context::new();
 
-        let region = Region::new();
+        let mut region = Region::new();
         region.append_block(Block::new(&[]));
 
         let module = Module::from_operation(
@@ -122,8 +118,8 @@ mod tests {
         )
         .unwrap();
 
-        assert!(module.as_operation().verify());
-        assert_eq!(module.as_operation().to_string(), "module {\n}\n")
+        assert!(module.operation.verify());
+        assert_eq!(module.operation.to_string(), "module {\n}\n")
     }
 
     #[test]

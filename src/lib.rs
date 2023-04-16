@@ -155,8 +155,8 @@ mod tests {
         let context = Context::new();
         let module = Module::new(Location::unknown(&context));
 
-        assert!(module.as_operation().verify());
-        insta::assert_display_snapshot!(module.as_operation());
+        assert!(module.operation.verify());
+        insta::assert_display_snapshot!(module.operation);
     }
 
     #[test]
@@ -166,8 +166,8 @@ mod tests {
         context.append_dialect_registry(&registry);
         let module = Module::new(Location::unknown(&context));
 
-        assert!(module.as_operation().verify());
-        insta::assert_display_snapshot!(module.as_operation());
+        assert!(module.operation.verify());
+        insta::assert_display_snapshot!(module.operation);
     }
 
     #[test]
@@ -180,13 +180,13 @@ mod tests {
         context.get_or_load_dialect("func");
 
         let location = Location::unknown(&context);
-        let module = Module::new(location);
+        let mut module = Module::new(location);
 
         let integer_type = Type::integer(&context, 64);
 
         let function = {
-            let region = Region::new();
-            let block = Block::new(&[(integer_type, location), (integer_type, location)]);
+            let mut region = Region::new();
+            let mut block = Block::new(&[(integer_type, location), (integer_type, location)]);
 
             let sum = block.append_operation(
                 operation::Builder::new("arith.addi", location)
@@ -221,10 +221,10 @@ mod tests {
                 .build()
         };
 
-        module.body().append_operation(function);
+        module.body.append_operation(function);
 
-        assert!(module.as_operation().verify());
-        insta::assert_display_snapshot!(module.as_operation());
+        assert!(module.operation.verify());
+        insta::assert_display_snapshot!(module.operation);
     }
 
     #[test]
@@ -239,13 +239,14 @@ mod tests {
         context.get_or_load_dialect("scf");
 
         let location = Location::unknown(&context);
-        let module = Module::new(location);
+        let mut module = Module::new(location);
 
         let memref_type = Type::parse(&context, "memref<?xf32>").unwrap();
 
         let function = {
-            let function_region = Region::new();
-            let function_block = Block::new(&[(memref_type, location), (memref_type, location)]);
+            let mut function_region = Region::new();
+            let mut function_block =
+                Block::new(&[(memref_type, location), (memref_type, location)]);
             let index_type = Type::parse(&context, "index").unwrap();
 
             let zero = function_block.append_operation(
@@ -267,7 +268,7 @@ mod tests {
                     .build(),
             );
 
-            let loop_block = Block::new(&[]);
+            let mut loop_block = Block::new(&[]);
             loop_block.add_argument(index_type, location);
 
             let one = function_block.append_operation(
@@ -363,9 +364,9 @@ mod tests {
                 .build()
         };
 
-        module.body().append_operation(function);
+        module.body.append_operation(function);
 
-        assert!(module.as_operation().verify());
-        insta::assert_display_snapshot!(module.as_operation());
+        assert!(module.operation.verify());
+        insta::assert_display_snapshot!(module.operation);
     }
 }

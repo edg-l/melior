@@ -17,7 +17,7 @@ use crate::{
 /// # Arguments
 /// * `dest` - any successor
 /// * `dest_operands` - any type
-pub fn br<'c>(dest: &Block<'c>, dest_operands: &[Value], location: Location<'c>) -> Operation<'c> {
+pub fn br<'c>(dest: &Block, dest_operands: &[Value], location: Location<'c>) -> Operation {
     operation::Builder::new("cf.br", location)
         .add_operands(dest_operands)
         .add_successors(&[dest])
@@ -34,15 +34,15 @@ pub fn br<'c>(dest: &Block<'c>, dest_operands: &[Value], location: Location<'c>)
 /// * `false_dest` - any successor
 /// * `true_dest_operands` - any type
 /// * `false_dest_operands` - any type
-pub fn cond_br<'c>(
-    context: &'c Context,
+pub fn cond_br(
+    context: &Context,
     condition: Value,
-    true_dest: &Block<'c>,
-    false_dest: &Block<'c>,
+    true_dest: &Block,
+    false_dest: &Block,
     true_dest_operands: &[Value],
     false_dest_operands: &[Value],
-    location: Location<'c>,
-) -> Operation<'c> {
+    location: Location,
+) -> Operation {
     let mut operands = vec![condition];
     operands.extend(true_dest_operands);
     operands.extend(false_dest_operands);
@@ -76,14 +76,14 @@ pub fn cond_br<'c>(
 /// * `case_values` - The hard-coded constant values the flag matches against.
 /// * `default_destination` - the default case successor, with the operands it requires.
 /// * `case_destinations` - case successors, with the operands each successor requires.
-pub fn switch<'c>(
-    context: &'c Context,
+pub fn switch(
+    context: &Context,
     case_values: &[String],
     flag: Value,
-    default_destination: (&Block<'c>, &[Value]),
-    case_destinations: &[(&Block<'c>, &[Value])],
-    location: Location<'c>,
-) -> Operation<'c> {
+    default_destination: (&Block, &[Value]),
+    case_destinations: &[(&Block, &[Value])],
+    location: Location,
+) -> Operation {
     let case_segment_sizes = std::iter::once(default_destination.1.len())
         .chain(case_destinations.iter().map(|x| x.1.len()))
         .join(", ");

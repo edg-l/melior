@@ -6,34 +6,32 @@ use crate::mlir_sys::{
     mlirOperationStateGet, MlirOperationState,
 };
 use crate::{
-    context::Context,
     ir::{Block, Location, Region, Type, TypeLike, Value, ValueLike},
     string_ref::StringRef,
     utility::into_raw_array,
 };
-use std::marker::PhantomData;
 
 use super::Operation;
 
 /// An operation builder.
-pub struct Builder<'c> {
+pub struct Builder {
     raw: MlirOperationState,
-    _context: PhantomData<&'c Context>,
+    regions: Vec<Region>,
 }
 
-impl<'c> Builder<'c> {
+impl Builder {
     /// Creates an operation builder.
-    pub fn new(name: &str, location: Location<'c>) -> Self {
+    pub fn new(name: &str, location: Location) -> Self {
         Self {
             raw: unsafe {
                 mlirOperationStateGet(StringRef::from(name).to_raw(), location.to_raw())
             },
-            _context: Default::default(),
+            regions: Vec::with_capacity(1),
         }
     }
 
     /// Adds results.
-    pub fn add_results(mut self, results: &[Type<'c>]) -> Self {
+    pub fn add_results(mut self, results: &[Type]) -> Self {
         unsafe {
             mlirOperationStateAddResults(
                 &mut self.raw,
@@ -59,19 +57,20 @@ impl<'c> Builder<'c> {
     }
 
     /// Adds regions.
-    pub fn add_regions(mut self, regions: Vec<Region>) -> Self {
+    pub fn add_regions(mut self, mut regions: Vec<Region>) -> Self {
         unsafe {
             mlirOperationStateAddOwnedRegions(
                 &mut self.raw,
                 regions.len() as isize,
-                into_raw_array(
-                    regions
-                        .into_iter()
-                        .map(|region| region.into_raw())
-                        .collect(),
-                ),
+                into_raw_array(regions.iter().map(|region| region.raw).collect()),
             )
         }
+
+        for reg in &mut regions {
+            reg.owned = false;
+        }
+
+        self.regions.extend(regions);
 
         self
     }
@@ -79,7 +78,7 @@ impl<'c> Builder<'c> {
     /// Adds successor blocks.
     // TODO Fix this to ensure blocks are alive while they are referenced by the
     // operation.
-    pub fn add_successors(mut self, successors: &[&Block<'c>]) -> Self {
+    pub fn add_successors(mut self, successors: &[&Block]) -> Self {
         unsafe {
             mlirOperationStateAddSuccessors(
                 &mut self.raw,
@@ -92,7 +91,7 @@ impl<'c> Builder<'c> {
     }
 
     /// Adds attributes.
-    pub fn add_attributes(mut self, attributes: &[NamedAttribute<'c>]) -> Self {
+    pub fn add_attributes(mut self, attributes: &[NamedAttribute]) -> Self {
         unsafe {
             mlirOperationStateAddAttributes(
                 &mut self.raw,
@@ -117,8 +116,14 @@ impl<'c> Builder<'c> {
     }
 
     /// Builds an operation.
-    pub fn build(mut self) -> Operation<'c> {
-        unsafe { Operation::from_raw(mlirOperationCreate(&mut self.raw)) }
+    pub fn build(mut self) -> Operation {
+        unsafe {
+            Operation {
+                raw: mlirOperationCreate(&mut self.raw),
+                owned: true,
+                regions: self.regions,
+            }
+        }
     }
 }
 

@@ -20,6 +20,8 @@ pub enum Error {
     TupleExpected(String),
     TupleFieldPosition(String, usize),
     NamedAttributeParse(String),
+    BlockNotFound,
+    OperationNotFound,
 }
 
 impl Display for Error {
@@ -67,6 +69,12 @@ impl Display for Error {
             }
             Self::NamedAttributeParse(attribute) => {
                 write!(formatter, "error parsing attribute: {attribute}")
+            }
+            Self::BlockNotFound => {
+                write!(formatter, "error finding block in region")
+            }
+            Self::OperationNotFound => {
+                write!(formatter, "error finding operation in block")
             }
         }
     }
