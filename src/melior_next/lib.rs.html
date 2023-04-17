@@ -367,6 +367,8 @@
 <a href="#367" id="367">367</a>
 <a href="#368" id="368">368</a>
 <a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
 </pre><pre class="rust"><code><span class="doccomment">//! Melior-next is the rustic MLIR bindings for Rust. It aims to provide a simple,
 //! safe, and complete API for MLIR with a reasonably sane ownership model
 //! represented by the type system in Rust.
@@ -491,6 +493,7 @@
 </span><span class="attr">#![deny(clippy::all)]
 
 </span><span class="kw">mod </span>context;
+<span class="kw">pub mod </span>diagnostics;
 <span class="kw">pub mod </span>dialect;
 <span class="kw">mod </span>error;
 <span class="kw">mod </span>execution_engine;
@@ -505,6 +508,7 @@
     context::{Context, ContextRef},
     error::Error,
     execution_engine::ExecutionEngine,
+    logical_result::LogicalResult,
     string_ref::StringRef,
 };
 
