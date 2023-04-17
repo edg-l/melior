@@ -35,6 +35,10 @@ impl LogicalResult {
     pub(crate) const fn from_raw(result: MlirLogicalResult) -> Self {
         Self { raw: result }
     }
+
+    pub(crate) const unsafe fn to_raw(&self) -> MlirLogicalResult {
+        self.raw
+    }
 }
 
 #[cfg(test)]

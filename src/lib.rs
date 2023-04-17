@@ -122,6 +122,7 @@
 #![deny(clippy::all)]
 
 mod context;
+pub mod diagnostics;
 pub mod dialect;
 mod error;
 mod execution_engine;
@@ -136,6 +137,7 @@ pub use self::{
     context::{Context, ContextRef},
     error::Error,
     execution_engine::ExecutionEngine,
+    logical_result::LogicalResult,
     string_ref::StringRef,
 };
 
