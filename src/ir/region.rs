@@ -1,4 +1,4 @@
-use smallvec::SmallVec;
+use std::{cell::RefCell, rc::Rc};
 
 use super::Block;
 use crate::{
@@ -15,7 +15,7 @@ use crate::{
 pub struct Region {
     pub(crate) raw: MlirRegion,
     pub(crate) owned: bool,
-    pub blocks: Vec<Block>,
+    pub blocks: Vec<Rc<RefCell<Block>>>,
 }
 
 impl Region {
@@ -29,13 +29,13 @@ impl Region {
     }
 
     /// Gets the first block in a region.
-    pub fn first_block(&self) -> Option<&Block> {
-        self.blocks.first()
+    pub fn first_block(&self) -> Option<Rc<RefCell<Block>>> {
+        self.blocks.first().cloned()
     }
 
     /// Gets the last block in a region.
-    pub fn last_block(&self) -> Option<&Block> {
-        self.blocks.last()
+    pub fn last_block(&self) -> Option<Rc<RefCell<Block>>> {
+        self.blocks.last().cloned()
     }
 
     /// Inserts a block after another block.
@@ -43,15 +43,15 @@ impl Region {
         &mut self,
         reference: &Block,
         mut block: Block,
-    ) -> Result<&Block, Error> {
+    ) -> Result<Rc<RefCell<Block>>, Error> {
         for (i, b) in self.blocks.iter().enumerate() {
-            if *b == *reference {
+            if *RefCell::borrow(b) == *reference {
                 unsafe {
                     mlirRegionInsertOwnedBlockAfter(self.raw, reference.to_raw(), block.to_raw());
                 }
                 block.owned = false;
-                self.blocks.insert(i + 1, block);
-                return Ok(&self.blocks[i]);
+                self.blocks.insert(i + 1, Rc::new(RefCell::new(block)));
+                return Ok(self.blocks[i].clone());
             }
         }
         Err(Error::BlockNotFound)
@@ -62,26 +62,26 @@ impl Region {
         &mut self,
         reference: &Block,
         mut block: Block,
-    ) -> Result<&Block, Error> {
+    ) -> Result<Rc<RefCell<Block>>, Error> {
         for (i, b) in self.blocks.iter().enumerate() {
-            if *b == *reference {
+            if *RefCell::borrow(b) == *reference {
                 unsafe {
                     mlirRegionInsertOwnedBlockBefore(self.raw, reference.to_raw(), block.to_raw());
                 }
                 block.owned = false;
-                self.blocks.insert(i, block);
-                return Ok(&self.blocks[i]);
+                self.blocks.insert(i, Rc::new(RefCell::new(block)));
+                return Ok(self.blocks[i].clone());
             }
         }
         Err(Error::BlockNotFound)
     }
 
     /// Appends a block, returning a reference to it.
-    pub fn append_block(&mut self, mut block: Block) -> &Block {
+    pub fn append_block(&mut self, mut block: Block) -> Rc<RefCell<Block>> {
         unsafe { mlirRegionAppendOwnedBlock(self.raw, block.to_raw()) };
         block.owned = false;
-        self.blocks.push(block);
-        self.blocks.last().unwrap()
+        self.blocks.push(Rc::new(RefCell::new(block)));
+        self.blocks.last().unwrap().clone()
     }
 
     /// Gets this region from the raw handle, population all the blocks, recursively.
@@ -92,7 +92,7 @@ impl Region {
 
         while !current_block_raw.ptr.is_null() {
             let block = Block::from_raw(current_block_raw, false);
-            blocks.push(block);
+            blocks.push(Rc::new(RefCell::new(block)));
             current_block_raw = unsafe { mlirBlockGetNextInRegion(current_block_raw) };
         }
 
@@ -151,7 +151,9 @@ mod tests {
         let mut region = Region::new();
 
         let block = region.append_block(Block::new(&[]));
-        region.insert_block_after(block, Block::new(&[]));
+        region
+            .insert_block_after(&block.borrow(), Block::new(&[]))
+            .unwrap();
 
         assert_eq!(region.first_block(), Some(block));
     }
@@ -161,7 +163,9 @@ mod tests {
         let mut region = Region::new();
 
         let block = region.append_block(Block::new(&[]));
-        let block = region.insert_block_before(block, Block::new(&[])).unwrap();
+        let block = region
+            .insert_block_before(&block.borrow(), Block::new(&[]))
+            .unwrap();
 
         assert_eq!(region.first_block(), Some(block));
     }

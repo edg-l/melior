@@ -200,7 +200,7 @@ mod tests {
 
             block.append_operation(
                 operation::Builder::new("func.return", Location::unknown(&context))
-                    .add_operands(&[sum.result(0).unwrap().into()])
+                    .add_operands(&[sum.borrow().result(0).unwrap().into()])
                     .build(),
             );
 
@@ -262,7 +262,7 @@ mod tests {
                 operation::Builder::new("memref.dim", location)
                     .add_operands(&[
                         function_block.argument(0).unwrap().into(),
-                        zero.result(0).unwrap().into(),
+                        zero.borrow().result(0).unwrap().into(),
                     ])
                     .add_results(&[index_type])
                     .build(),
@@ -306,8 +306,8 @@ mod tests {
                 let add = loop_block.append_operation(
                     operation::Builder::new("arith.addf", location)
                         .add_operands(&[
-                            lhs.result(0).unwrap().into(),
-                            rhs.result(0).unwrap().into(),
+                            lhs.borrow().result(0).unwrap().into(),
+                            rhs.borrow().result(0).unwrap().into(),
                         ])
                         .add_results(&[f32_type])
                         .build(),
@@ -316,7 +316,7 @@ mod tests {
                 loop_block.append_operation(
                     operation::Builder::new("memref.store", location)
                         .add_operands(&[
-                            add.result(0).unwrap().into(),
+                            add.borrow().result(0).unwrap().into(),
                             function_block.argument(0).unwrap().into(),
                             loop_block.argument(0).unwrap().into(),
                         ])
@@ -328,15 +328,15 @@ mod tests {
 
             function_block.append_operation(
                 {
-                    let loop_region = Region::new();
+                    let mut loop_region = Region::new();
 
                     loop_region.append_block(loop_block);
 
                     operation::Builder::new("scf.for", location)
                         .add_operands(&[
-                            zero.result(0).unwrap().into(),
-                            dim.result(0).unwrap().into(),
-                            one.result(0).unwrap().into(),
+                            zero.borrow().result(0).unwrap().into(),
+                            dim.borrow().result(0).unwrap().into(),
+                            one.borrow().result(0).unwrap().into(),
                         ])
                         .add_regions(vec![loop_region])
                 }

@@ -17,7 +17,7 @@ use crate::{
 /// # Arguments
 /// * `dest` - any successor
 /// * `dest_operands` - any type
-pub fn br<'c>(dest: &Block, dest_operands: &[Value], location: Location<'c>) -> Operation {
+pub fn br(dest: &Block, dest_operands: &[Value], location: Location<'_>) -> Operation {
     operation::Builder::new("cf.br", location)
         .add_operands(dest_operands)
         .add_successors(&[dest])

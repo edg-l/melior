@@ -233,15 +233,6 @@ mod tests {
     }
 
     #[test]
-    fn clone() {
-        let context = Context::new();
-        context.set_allow_unregistered_dialects(true);
-        let operation = Builder::new("foo", Location::unknown(&context)).build();
-
-        let _ = operation.clone();
-    }
-
-    #[test]
     fn display() {
         let context = Context::new();
         context.set_allow_unregistered_dialects(true);

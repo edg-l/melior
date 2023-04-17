@@ -2,8 +2,6 @@
 
 mod argument;
 
-use smallvec::SmallVec;
-
 pub use self::argument::Argument;
 use super::{Location, Operation, Type, TypeLike, Value};
 use crate::mlir_sys::{
@@ -17,6 +15,8 @@ use crate::{
     utility::{into_raw_array, print_callback},
     Error,
 };
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::{
     ffi::c_void,
     fmt::{self, Debug, Display, Formatter},
@@ -26,7 +26,7 @@ use std::{
 pub struct Block {
     raw: MlirBlock,
     pub(crate) owned: bool,
-    operations: Vec<Operation>,
+    operations: Vec<Rc<RefCell<Operation>>>,
 }
 
 impl Block {
@@ -74,16 +74,17 @@ impl Block {
     }
 
     /// Gets the first operation.
-    pub fn first_operation(&self) -> Option<&Operation> {
-        self.operations.first()
+    pub fn first_operation(&self) -> Option<Rc<RefCell<Operation>>> {
+        self.operations.first().cloned()
     }
 
     /// Gets a terminator operation.
-    pub fn terminator(&self) -> Option<&Operation> {
+    pub fn terminator(&self) -> Option<Rc<RefCell<Operation>>> {
         let term_op = unsafe { mlirBlockGetTerminator(self.raw) };
         self.operations
             .iter()
-            .find(|&op| unsafe { mlirOperationEqual(term_op, op.raw) })
+            .find(|&op| unsafe { mlirOperationEqual(term_op, RefCell::borrow(op).raw) })
+            .cloned()
     }
 
     /// Gets a parent operation.
@@ -105,23 +106,28 @@ impl Block {
     }
 
     /// Appends an operation.
-    pub fn append_operation(&mut self, mut operation: Operation) -> &Operation {
+    pub fn append_operation(&mut self, mut operation: Operation) -> Rc<RefCell<Operation>> {
         unsafe {
             mlirBlockAppendOwnedOperation(self.raw, operation.raw);
         }
         operation.owned = false;
-        self.operations.push(operation);
-        self.operations.last().unwrap()
+        self.operations.push(Rc::new(RefCell::new(operation)));
+        self.operations.last().unwrap().clone()
     }
 
     /// Inserts an operation.
-    pub fn insert_operation(&mut self, position: usize, mut operation: Operation) -> &Operation {
+    pub fn insert_operation(
+        &mut self,
+        position: usize,
+        mut operation: Operation,
+    ) -> Rc<RefCell<Operation>> {
         unsafe {
             mlirBlockInsertOwnedOperation(self.raw, position as isize, operation.raw);
         }
         operation.owned = false;
-        self.operations.insert(position, operation);
-        &self.operations[position]
+        self.operations
+            .insert(position, Rc::new(RefCell::new(operation)));
+        self.operations[position].clone()
     }
 
     /// Inserts an operation after another.
@@ -129,15 +135,15 @@ impl Block {
         &mut self,
         reference: &Operation,
         mut other: Operation,
-    ) -> Result<&Operation, Error> {
+    ) -> Result<Rc<RefCell<Operation>>, Error> {
         for (i, b) in self.operations.iter().enumerate() {
-            if *b == *reference {
+            if *RefCell::borrow(b) == *reference {
                 unsafe {
                     mlirBlockInsertOwnedOperationAfter(self.raw, reference.raw, other.raw);
                 }
                 other.owned = false;
-                self.operations.insert(i + 1, other);
-                return Ok(&self.operations[i]);
+                self.operations.insert(i + 1, Rc::new(RefCell::new(other)));
+                return Ok(self.operations[i].clone());
             }
         }
         Err(Error::OperationNotFound)
@@ -148,15 +154,15 @@ impl Block {
         &mut self,
         reference: &Operation,
         mut other: Operation,
-    ) -> Result<&Operation, Error> {
+    ) -> Result<Rc<RefCell<Operation>>, Error> {
         for (i, b) in self.operations.iter().enumerate() {
-            if *b == *reference {
+            if *RefCell::borrow(b) == *reference {
                 unsafe {
                     mlirBlockInsertOwnedOperationBefore(self.raw, reference.raw, other.raw);
                 }
                 other.owned = false;
-                self.operations.insert(i, other);
-                return Ok(&self.operations[i]);
+                self.operations.insert(i, Rc::new(RefCell::new(other)));
+                return Ok(self.operations[i].clone());
             }
         }
         Err(Error::OperationNotFound)
@@ -194,7 +200,7 @@ impl Block {
 
         while !current_op_raw.ptr.is_null() {
             let op = unsafe { Operation::from_raw(current_op_raw, false) };
-            operations.push(op);
+            operations.push(Rc::new(RefCell::new(op)));
             current_op_raw = unsafe { mlirOperationGetNextInBlock(current_op_raw) };
         }
 
@@ -437,7 +443,7 @@ mod tests {
         );
         let second_operation = block
             .insert_operation_after(
-                first_operation,
+                &first_operation.borrow(),
                 operation::Builder::new("arith.constant", Location::unknown(&context))
                     .add_results(&[Type::integer(&context, 32)])
                     .add_attributes(&[
@@ -448,7 +454,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(block.first_operation(), Some(first_operation));
-        assert_eq!(block.operations.get(1), Some(second_operation));
+        assert_eq!(block.operations.get(1), Some(&second_operation));
     }
 
     #[test]
@@ -470,7 +476,7 @@ mod tests {
         );
         let first_operation = block
             .insert_operation_before(
-                second_operation,
+                &second_operation.borrow(),
                 operation::Builder::new("arith.constant", Location::unknown(&context))
                     .add_results(&[Type::integer(&context, 32)])
                     .add_attributes(&[
@@ -480,8 +486,8 @@ mod tests {
             )
             .unwrap();
 
-        assert_eq!(block.operations.first(), Some(first_operation));
-        assert_eq!(block.operations.get(1), Some(second_operation));
+        assert_eq!(block.operations.first(), Some(&first_operation));
+        assert_eq!(block.operations.get(1), Some(&second_operation));
     }
 
     /*

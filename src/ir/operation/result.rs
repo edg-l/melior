@@ -49,7 +49,7 @@ impl<'a> TryFrom<Value<'a>> for ResultValue<'a> {
 mod tests {
     use crate::{
         context::Context,
-        ir::{operation, Block, Location, Type},
+        ir::{operation, Location, Type},
     };
 
     #[test]
