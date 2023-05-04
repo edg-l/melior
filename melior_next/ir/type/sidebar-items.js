@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["id","Type IDs and allocators"]],"struct":[["Function","A function type."],["Tuple","A tuple type."],["Type","A type."]],"trait":[["TypeLike","Trait for type-like types."]]};
+window.SIDEBAR_ITEMS = {"mod":["id"],"struct":["Function","Tuple","Type"],"trait":["TypeLike"]};

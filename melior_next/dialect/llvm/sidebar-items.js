@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["type","LLVM types"]]};
+window.SIDEBAR_ITEMS = {"mod":["type"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["array","Creates an LLVM array type."],["function","Creates an LLVM function type."],["opaque_pointer","Creates an LLVM opaque pointer type."],["pointer","Creates an LLVM pointer type."],["struct","Creates an LLVM struct type."],["void","Creates an LLVM void type."]]};
+window.SIDEBAR_ITEMS = {"fn":["array","function","opaque_pointer","pointer","struct","void"]};

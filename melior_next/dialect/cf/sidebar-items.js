@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["br","branch operation"],["cond_br","conditional branch operation"],["switch","cf switch"]]};
+window.SIDEBAR_ITEMS = {"fn":["br","cond_br","switch"]};

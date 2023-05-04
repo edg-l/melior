@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Argument","A block argument."],["Block","A block."],["BlockRef","A reference of a block."]]};
+window.SIDEBAR_ITEMS = {"struct":["Argument","Block","BlockRef"]};
