@@ -6,16 +6,16 @@ mod result;
 pub use self::{builder::Builder, result::ResultValue};
 use super::{BlockRef, Identifier, RegionRef, Value};
 use crate::mlir_sys::{
-    mlirOpPrintingFlagsCreate, mlirOpPrintingFlagsEnableDebugInfo, mlirOperationClone,
-    mlirOperationDestroy, mlirOperationDump, mlirOperationEqual, mlirOperationGetBlock,
-    mlirOperationGetContext, mlirOperationGetName, mlirOperationGetNextInBlock,
-    mlirOperationGetNumRegions, mlirOperationGetNumResults, mlirOperationGetRegion,
-    mlirOperationGetResult, mlirOperationPrintWithFlags, mlirOperationVerify, MlirOperation,
+    mlirOpPrintingFlagsCreate, mlirOpPrintingFlagsDestroy, mlirOpPrintingFlagsEnableDebugInfo,
+    mlirOperationClone, mlirOperationDestroy, mlirOperationDump, mlirOperationEqual,
+    mlirOperationGetBlock, mlirOperationGetContext, mlirOperationGetName,
+    mlirOperationGetNextInBlock, mlirOperationGetNumRegions, mlirOperationGetNumResults,
+    mlirOperationGetRegion, mlirOperationGetResult, mlirOperationPrint,
+    mlirOperationPrintWithFlags, mlirOperationVerify, MlirOperation,
 };
-use crate::utility::print_debug_callback;
+use crate::utility::{print_callback_v2, print_debug_callback};
 use crate::{
     context::{Context, ContextRef},
-    utility::print_callback,
     Error,
 };
 use core::fmt;
@@ -99,6 +99,7 @@ impl<'c> Operation<'c> {
                 Some(print_debug_callback),
                 &mut data as *mut _ as *mut c_void,
             );
+            mlirOpPrintingFlagsDestroy(flags);
         };
 
         data
@@ -165,20 +166,17 @@ impl<'c> Eq for Operation<'c> {}
 
 impl<'a> Display for Operation<'a> {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        let mut data = (formatter, Ok(()));
+        let mut data = String::new();
 
         unsafe {
-            let flags = mlirOpPrintingFlagsCreate();
-            mlirOpPrintingFlagsEnableDebugInfo(flags, false, false);
-            mlirOperationPrintWithFlags(
+            mlirOperationPrint(
                 self.raw,
-                flags,
-                Some(print_callback),
+                Some(print_callback_v2),
                 &mut data as *mut _ as *mut c_void,
             );
-        }
+        };
 
-        data.1
+        write!(formatter, "{}", data)
     }
 }
 

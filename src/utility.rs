@@ -74,6 +74,14 @@ pub(crate) unsafe extern "C" fn print_callback(string: MlirStringRef, data: *mut
     })();
 }
 
+pub(crate) unsafe extern "C" fn print_callback_v2(string: MlirStringRef, data: *mut c_void) {
+    let data = &mut *(data as *mut String);
+
+    let debug = StringRef::from_raw(string);
+    let debug_str = debug.as_str().unwrap();
+    data.push_str(debug_str);
+}
+
 // used to print ops with debug info
 pub(crate) unsafe extern "C" fn print_debug_callback(string: MlirStringRef, data: *mut c_void) {
     let data = &mut *(data as *mut String);
