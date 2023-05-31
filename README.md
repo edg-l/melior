@@ -1,4 +1,4 @@
-## Use the original [Melior](https://github.com/raviqqe/melior) instead! It's back to being active
+# Use the original [Melior](https://github.com/raviqqe/melior) instead! It's back to being active
 
 # Melior-next (archived)
 
