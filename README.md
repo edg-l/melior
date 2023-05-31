@@ -1,4 +1,6 @@
-# Melior-next
+## Use the original [Melior](https://github.com/raviqqe/melior) instead! It's back to being active
+
+# Melior-next (archived)
 
 [![GitHub Action](https://img.shields.io/github/actions/workflow/status/edg-l/melior-next/test.yaml?branch=main&style=flat-square)](https://github.com/edg-l/melior-next/actions?query=workflow%3Atest)
 [![Crate](https://img.shields.io/crates/v/melior-next.svg?style=flat-square)](https://crates.io/crates/melior-next)
